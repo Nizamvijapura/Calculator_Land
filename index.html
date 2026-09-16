@@ -241,6 +241,8 @@
         <div><label>એકર</label><input type="number" id="d_acre" placeholder="0" step="any"></div>
         <div><label>+ ગુંઠા</label><input type="number" id="d_guntha" placeholder="0" step="any"></div>
       </div>
+      <label>1 એકર = કેટલા ગુંઠા? (સામાન્ય રીતે 40, તમારા વિસ્તાર મુજબ બદલો)</label>
+      <input type="number" id="d_acreRatio" value="40" step="any">
     </div>
 
     <div class="card">
@@ -249,6 +251,8 @@
       <input type="number" id="d_acrePrice" placeholder="દા.ત. 4000000" step="any">
       <label>1 ગુંઠાનો ભાવ (₹) — ઓટોમેટિક / જાતે બદલી શકાય</label>
       <input type="number" id="d_gunthaPrice" placeholder="દા.ત. 100000" step="any">
+      <label>કુલ રકમ (₹) — આ પણ જાતે લખી શકાય</label>
+      <input type="number" id="d_totalInput" placeholder="દા.ત. 1500000" step="any">
 
       <div class="results" id="dealResult" style="display:none">
         <div class="row"><span>કુલ જમીન</span><span class="val" id="d_totalLand">-</span></div>
@@ -434,50 +438,73 @@ function clearConvert() {
 // ---- DEAL TAB (linked) ----
 const dAcre = document.getElementById('d_acre');
 const dGuntha = document.getElementById('d_guntha');
+const dAcreRatio = document.getElementById('d_acreRatio');
 const dAcrePrice = document.getElementById('d_acrePrice');
 const dGunthaPrice = document.getElementById('d_gunthaPrice');
+const dTotalInput = document.getElementById('d_totalInput');
 let dealLastEdited = 'acrePrice';
+
+function dealRatio() {
+  return parseFloat(dAcreRatio.value) || 40;
+}
 
 function totalGunthaOfLand() {
   const a = parseFloat(dAcre.value) || 0;
   const g = parseFloat(dGuntha.value) || 0;
-  return (a * ACRE_TO_GUNTHA) + g;
+  return (a * dealRatio()) + g;
 }
 
 function recomputeDeal() {
+  const ratio = dealRatio();
   const totalG = totalGunthaOfLand();
+  const box = document.getElementById('dealResult');
+  if (totalG === 0) { box.style.display = 'none'; return; }
+
   let acrePrice = parseFloat(dAcrePrice.value);
   let gunthaPrice = parseFloat(dGunthaPrice.value);
+  let totalAmount = parseFloat(dTotalInput.value);
 
-  if (dealLastEdited === 'acrePrice' && !isNaN(acrePrice)) {
-    gunthaPrice = acrePrice / ACRE_TO_GUNTHA;
-    dGunthaPrice.value = gunthaPrice ? +gunthaPrice.toFixed(2) : '';
-  } else if (dealLastEdited === 'gunthaPrice' && !isNaN(gunthaPrice)) {
-    acrePrice = gunthaPrice * ACRE_TO_GUNTHA;
+  if (dealLastEdited === 'totalAmount' && !isNaN(totalAmount)) {
+    gunthaPrice = totalAmount / totalG;
+    acrePrice = gunthaPrice * ratio;
     dAcrePrice.value = acrePrice ? +acrePrice.toFixed(2) : '';
+    dGunthaPrice.value = gunthaPrice ? +gunthaPrice.toFixed(2) : '';
+  } else if (dealLastEdited === 'acrePrice' && !isNaN(acrePrice)) {
+    gunthaPrice = acrePrice / ratio;
+    totalAmount = gunthaPrice * totalG;
+    dGunthaPrice.value = gunthaPrice ? +gunthaPrice.toFixed(2) : '';
+    dTotalInput.value = totalAmount ? +totalAmount.toFixed(2) : '';
+  } else if (dealLastEdited === 'gunthaPrice' && !isNaN(gunthaPrice)) {
+    acrePrice = gunthaPrice * ratio;
+    totalAmount = gunthaPrice * totalG;
+    dAcrePrice.value = acrePrice ? +acrePrice.toFixed(2) : '';
+    dTotalInput.value = totalAmount ? +totalAmount.toFixed(2) : '';
   }
 
-  const box = document.getElementById('dealResult');
-  if ((isNaN(acrePrice) && isNaN(gunthaPrice)) || totalG === 0) { box.style.display = 'none'; return; }
-  if (isNaN(gunthaPrice)) gunthaPrice = acrePrice / ACRE_TO_GUNTHA;
-  if (isNaN(acrePrice)) acrePrice = gunthaPrice * ACRE_TO_GUNTHA;
+  if (isNaN(acrePrice) && isNaN(gunthaPrice) && isNaN(totalAmount)) { box.style.display = 'none'; return; }
+  if (isNaN(gunthaPrice) && !isNaN(acrePrice)) gunthaPrice = acrePrice / ratio;
+  if (isNaN(gunthaPrice) && !isNaN(totalAmount)) gunthaPrice = totalAmount / totalG;
+  if (isNaN(acrePrice) && !isNaN(gunthaPrice)) acrePrice = gunthaPrice * ratio;
+  if (isNaN(totalAmount) && !isNaN(gunthaPrice)) totalAmount = gunthaPrice * totalG;
 
-  const total = totalG * gunthaPrice;
   box.style.display = 'block';
-  document.getElementById('d_totalLand').textContent = fmt(totalG/ACRE_TO_GUNTHA) + ' એકર (' + fmt(totalG) + ' ગુંઠા)';
+  document.getElementById('d_totalLand').textContent = fmt(totalG/ratio) + ' એકર (' + fmt(totalG) + ' ગુંઠા)';
   document.getElementById('d_showAcrePrice').textContent = fmtMoney(acrePrice);
   document.getElementById('d_showGunthaPrice').textContent = fmtMoney(gunthaPrice.toFixed(2));
-  document.getElementById('d_total').textContent = fmtMoney(total);
-  document.getElementById('d_totalWords').textContent = numberToGujaratiWords(total);
+  document.getElementById('d_total').textContent = fmtMoney(totalAmount);
+  document.getElementById('d_totalWords').textContent = numberToGujaratiWords(totalAmount);
 }
 dAcre.addEventListener('input', recomputeDeal);
 dGuntha.addEventListener('input', recomputeDeal);
+dAcreRatio.addEventListener('input', recomputeDeal);
 dAcrePrice.addEventListener('input', () => { dealLastEdited = 'acrePrice'; recomputeDeal(); });
 dGunthaPrice.addEventListener('input', () => { dealLastEdited = 'gunthaPrice'; recomputeDeal(); });
+dTotalInput.addEventListener('input', () => { dealLastEdited = 'totalAmount'; recomputeDeal(); });
 
 function clearDeal() {
   dAcre.value = ''; dGuntha.value = '';
-  dAcrePrice.value = ''; dGunthaPrice.value = '';
+  dAcreRatio.value = 40;
+  dAcrePrice.value = ''; dGunthaPrice.value = ''; dTotalInput.value = '';
   dealLastEdited = 'acrePrice';
   document.getElementById('dealResult').style.display = 'none';
   document.getElementById('banakhatCard').style.display = 'none';
