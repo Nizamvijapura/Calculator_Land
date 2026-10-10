@@ -224,6 +224,7 @@
       <div class="results" id="convResult" style="display:none">
         <div class="row"><span>Acre</span><span class="val" id="conv_acre">-</span></div>
         <div class="row"><span>Guntha</span><span class="val" id="conv_guntha">-</span></div>
+        <div class="row"><span>Vigha</span><span class="val" id="conv_vigha">-</span></div>
         <div class="row"><span>Sq Ft</span><span class="val" id="conv_sqft">-</span></div>
         <div class="row"><span>Sq Meter</span><span class="val" id="conv_sqm">-</span></div>
         <div class="row big" id="convRowValue" style="display:none"><span>Total Value</span><span class="val total-value" id="conv_value">-</span></div>
@@ -356,7 +357,7 @@ function updateConvUI() {
   document.getElementById('convInLabel').style.display = isHaa ? 'none' : 'block';
   convIn.style.display = isHaa ? 'none' : 'block';
   document.getElementById('convHaaGroup').style.display = isHaa ? 'block' : 'none';
-  document.getElementById('convVighaGroup').style.display = (u === 'vigha') ? 'block' : 'none';
+  document.getElementById('convVighaGroup').style.display = 'block';
   if (!isHaa) {
     convInLabel.textContent = 'Enter ' + unitLabels[u];
     convIn.placeholder = unitPlaceholders[u];
@@ -398,6 +399,8 @@ function runConvert() {
   box.style.display = 'block';
   document.getElementById('conv_acre').textContent = fmt(acre) + ' Acre';
   document.getElementById('conv_guntha').textContent = fmt(guntha) + ' Guntha';
+  const vighaRatio = parseFloat(document.getElementById('convVighaRatio').value) || 16;
+  document.getElementById('conv_vigha').textContent = fmt(guntha / vighaRatio) + ' Vigha';
   document.getElementById('conv_sqft').textContent = fmt(sqft) + ' sq ft';
   document.getElementById('conv_sqm').textContent = fmt(sqm) + ' sq.m';
 
