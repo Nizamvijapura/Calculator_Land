@@ -453,22 +453,28 @@
   .pdf-meta-fields input { width:100%; }
   #printArea { display:none; }
   @media print {
-    @page { size:A4; margin:16mm 14mm; }
+    @page { size:A4 portrait; margin:8mm 10mm; }
     html, body { background:#fff !important; color:#172b4d !important; margin:0 !important; padding:0 !important; }
     body * { visibility:hidden !important; }
     #printArea, #printArea * { visibility:visible !important; }
     #printArea {
-      display:block !important; position:absolute; left:0; top:0; width:100%;
+      display:block !important; position:fixed; left:0; top:0; width:100%;
+      max-height:281mm; overflow:hidden;
       color:#172b4d !important; background:#fff !important;
       font-family:Arial, 'Noto Sans Gujarati', sans-serif !important;
+      zoom:.88;
+      break-after:avoid !important; page-break-after:avoid !important;
     }
-    .pdf-page { width:100%; margin:0 auto; }
+    .pdf-page {
+      width:100%; margin:0 auto;
+      break-inside:avoid !important; page-break-inside:avoid !important;
+    }
     .pdf-header { display:flex; justify-content:space-between; align-items:center; gap:15px;
-      border-bottom:3px solid #174d78; padding:0 0 13px; margin-bottom:18px; }
+      border-bottom:3px solid #174d78; padding:0 0 9px; margin-bottom:11px; }
     .pdf-company { font-size:23px; font-weight:800; color:#123b60 !important; }
     .pdf-subtitle { margin-top:4px; font-size:11px; letter-spacing:1px; color:#63758a !important; }
     .pdf-date { font-size:12px; color:#63758a !important; text-align:right; }
-    .pdf-parties { display:grid; grid-template-columns:1fr 1fr; gap:12px; margin:18px 0 22px; }
+    .pdf-parties { display:grid; grid-template-columns:1fr 1fr; gap:10px; margin:11px 0 13px; }
     .pdf-parties > div { border:1px solid #d7e1eb; border-radius:7px; padding:10px 12px; }
     .pdf-parties span { display:block; color:#647890 !important; font-size:11px; margin-bottom:5px; }
     .pdf-parties strong { display:block; color:#173b60 !important; font-size:15px; overflow-wrap:anywhere; }
@@ -478,18 +484,18 @@
     .pdf-table th, .pdf-table td {
       border:1px solid #cbd7e3 !important;
       border-bottom:1px solid #cbd7e3 !important;
-      padding:10px 11px; font-size:12px;
+      padding:7px 9px; font-size:11px;
     }
     .pdf-table tr { border-bottom:1px solid #cbd7e3 !important; }
     .pdf-table th { text-align:left; background:#edf3f8 !important; color:#294b6b !important; }
     .pdf-table td:last-child { text-align:right; font-weight:700; color:#173b60 !important; }
     .pdf-survey-title { font-size:14px; color:#173b60 !important; margin:18px 0 8px; }
     .pdf-contact {
-      margin-top:25px; padding:13px 10px; border:2px solid #174d78; border-radius:7px;
+      margin-top:14px; padding:9px 8px; border:2px solid #174d78; border-radius:7px;
       text-align:center; color:#123b60 !important; font-size:20px; font-weight:900;
       letter-spacing:.5px;
     }
-    .pdf-footer { border-top:1px solid #dbe4ed; margin-top:16px; padding-top:9px;
+    .pdf-footer { border-top:1px solid #dbe4ed; margin-top:10px; padding-top:7px;
       text-align:center; color:#718198 !important; font-size:10px; }
     tr, .pdf-parties > div { break-inside:avoid; }
   }
@@ -844,9 +850,20 @@ function clearConvert() {
   convUnit.value = 'guntha';
   convIn.value = '';
   convRate.value = '';
+  document.getElementById('pdfPersonName').value = '';
+  document.getElementById('pdfSurveyNumber').value = '';
   document.getElementById('surveyRows').innerHTML = '';
   surveyRowCount = 0;
   addSurveyRow();
+  document.getElementById('convResult').style.display = 'none';
+  document.getElementById('convRowValue').style.display = 'none';
+  document.getElementById('convValueWords').style.display = 'none';
+  document.getElementById('conv_acre').textContent = '-';
+  document.getElementById('conv_vigha').textContent = '-';
+  document.getElementById('conv_guntha').textContent = '-';
+  document.getElementById('conv_sqft').textContent = '-';
+  document.getElementById('conv_sqm').textContent = '-';
+  document.getElementById('conv_value').textContent = '-';
   updateConvUI();
 }
 
