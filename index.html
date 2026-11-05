@@ -183,7 +183,7 @@
     padding: 24px 16px 36px;
     font-family: 'Noto Sans Gujarati', 'Segoe UI', Arial, sans-serif;
   }
-  body.theme-deal, body.theme-history {
+  body.theme-history {
     background: radial-gradient(circle at top left, #e8f1fb 0%, #f3f6fb 42%, #e9eef6 100%);
   }
   .wrap { max-width: 540px; }
@@ -439,6 +439,19 @@
     .survey-measures input { width: 100%; }
   }
 
+
+  .doc-tools{display:flex;align-items:center;gap:7px;flex-wrap:wrap;margin:10px 0}
+  .doc-tools .btn{width:auto;flex:1 1 auto;margin:0;padding:10px 12px}
+  .doc-stage{position:relative;overflow:auto;background:#071321;border:1px solid #426481;border-radius:10px;min-height:220px;max-height:75vh;text-align:center;touch-action:pan-x pan-y}
+  #docCanvas{display:block;margin:0 auto;max-width:none}
+  #markCanvas{position:absolute;left:50%;top:0;transform:translateX(-50%);touch-action:none;cursor:crosshair}
+  .doc-list-item{background:#0b1e30;border:1px solid #2b4b66;border-radius:11px;padding:12px;margin-top:9px}
+  .doc-list-item strong{display:block;color:#f3f8ff;font-size:16px}
+  .doc-list-item small{display:block;color:#afc2d5;margin:5px 0}
+  .doc-actions{display:flex;gap:7px;flex-wrap:wrap}
+  .doc-actions button{width:auto;flex:1;margin:0;padding:9px}
+  input[type=file]{font-size:14px}
+
 </style>
 </head>
 <body>
@@ -454,8 +467,8 @@
 
   <div class="tabs">
     <button type="button" class="tab active" data-tab="convert">Converter</button>
-    <button type="button" class="tab" data-tab="deal">Deal Calculator</button>
     <button type="button" class="tab" data-tab="settings">Settings</button>
+    <button type="button" class="tab" data-tab="documents">ઉતારા / નકશા</button>
   </div>
 
   <!-- CONVERT TAB -->
@@ -497,45 +510,6 @@
     <div class="note wiztech-brand">Wiztech Innovation LLP</div>
   </div>
 
-  <!-- DEAL TAB -->
-  <div id="tab-deal" style="display:none">
-    <div class="card">
-      <div class="card-head"><h2>જમીનનું માપ</h2><button class="clear-btn" onclick="clearDeal()">Clear</button></div>
-      <div class="two-col">
-        <div><label>એકર</label><input type="number" id="d_acre" placeholder="0" step="any"></div>
-        <div><label>+ ગુંઠા</label><input type="number" id="d_guntha" placeholder="0" step="any"></div>
-      </div>
-    </div>
-
-    <div class="card">
-      <h2>ભાવ (કોઈ પણ એક લખો)</h2>
-      <label>1 એકરનો ભાવ (₹)</label>
-      <input type="number" id="d_acrePrice" placeholder="દા.ત. 4000000" step="any">
-      <label>1 ગુંઠાનો ભાવ (₹) — ઓટોમેટિક / જાતે બદલી શકાય</label>
-      <input type="number" id="d_gunthaPrice" placeholder="દા.ત. 100000" step="any">
-
-      <div class="results" id="dealResult" style="display:none">
-        <div class="row"><span>કુલ જમીન</span><span class="val" id="d_totalLand">-</span></div>
-        <div class="row"><span>1 એકરનો ભાવ</span><span class="val" id="d_showAcrePrice">-</span></div>
-        <div class="row"><span>1 ગુંઠાનો ભાવ</span><span class="val" id="d_showGunthaPrice">-</span></div>
-        <div class="row big"><span>કુલ રકમ આપવાની</span><span class="val total-value" id="d_total">-</span></div>
-        <div class="words-row" id="d_totalWords">-</div>
-      </div>
-      <button class="btn" onclick="saveDealHistory()">💾 હિસ્ટ્રીમાં સેવ કરો</button>
-      <button class="btn outline" onclick="printDeal()">📄 PDF સેવ કરો</button>
-      <button class="btn whatsapp-btn" onclick="shareDealWhatsapp()">📱 WhatsApp Share</button>
-      <button class="btn outline" onclick="toggleBanakhat()">📃 બાનાખત ડ્રાફ્ટ બનાવો</button>
-    </div>
-
-    <div class="card" id="banakhatCard" style="display:none">
-      <div class="card-head"><h2>બાનાખત ડ્રાફ્ટ</h2><button class="clear-btn" onclick="toggleBanakhat()">બંધ કરો</button></div>
-      <textarea id="banakhatText" rows="14"></textarea>
-      <button class="btn outline" onclick="copyBanakhat()">📋 Copy કરો</button>
-      <button class="btn outline" onclick="printBanakhat()">📄 PDF સેવ કરો</button>
-      <div class="note" style="margin-top:8px;">આ સાદો ડ્રાફ્ટ છે — રજિસ્ટ્રેશન પહેલા વકીલ પાસે ચેક કરાવવો</div>
-    </div>
-  </div>
-
   <!-- SETTINGS TAB: unit settings + saved history -->
   <div id="tab-settings" style="display:none">
     <div class="card">
@@ -569,6 +543,51 @@
   </div>
 </div>
 
+
+  <div id="tab-documents" style="display:none">
+    <div class="card">
+      <h2>📁 ઉતારા અને જમીનના નકશા</h2>
+      <label>દસ્તાવેજનું નામ / ઓળખ</label>
+      <input type="text" id="docTitle" placeholder="દા.ત. સર્વે નં. 125 - પોલાજપુર">
+      <div class="two-col">
+        <div><label>ગામનું નામ</label><input type="text" id="docVillage" placeholder="ગામ"></div>
+        <div><label>સર્વે નંબર</label><input type="text" id="docSurvey" placeholder="સર્વે નં."></div>
+      </div>
+      <label>ઉતારો અથવા નકશો પસંદ કરો (PDF / JPG / PNG / WEBP)</label>
+      <input type="file" id="docFile" accept=".pdf,image/*" style="width:100%;margin-bottom:12px;color:#eaf4ff">
+      <button class="btn" type="button" onclick="saveLandDocument()">💾 Upload & Save</button>
+      <div class="note" id="docSaveStatus">દસ્તાવેજ તમારા આ બ્રાઉઝરમાં સેવ થશે.</div>
+    </div>
+    <div class="card">
+      <h2>🔎 દસ્તાવેજ શોધો</h2>
+      <input type="search" id="docSearch" placeholder="નામ, ગામ અથવા સર્વે નંબર લખો...">
+      <div id="docList"><div class="hist-empty">દસ્તાવેજ લોડ થઈ રહ્યા છે...</div></div>
+    </div>
+    <div class="card" id="docViewerCard" style="display:none">
+      <div class="card-head"><h2 id="viewerTitle">દસ્તાવેજ</h2><button class="clear-btn" onclick="closeLandDocument()">બંધ કરો</button></div>
+      <div class="doc-tools">
+        <button class="btn outline" onclick="changeDocZoom(1.25)">＋ Zoom</button>
+        <button class="btn outline" onclick="changeDocZoom(.8)">－ Zoom</button>
+        <button class="btn outline" onclick="resetDocZoom()">Fit</button>
+        <button class="btn outline" onclick="changePdfPage(-1)">◀ Page</button>
+        <span id="pdfPageInfo" class="settings-status">1 / 1</span>
+        <button class="btn outline" onclick="changePdfPage(1)">Page ▶</button>
+      </div>
+      <div class="doc-tools">
+        <label style="margin:0">રંગ</label>
+        <input type="color" id="markColor" value="#ff2020" style="width:48px;height:40px;padding:2px;margin:0">
+        <label style="margin:0">માર્કિંગ</label>
+        <select id="markTool" style="width:auto;min-width:120px;margin:0">
+          <option value="circle">ગોળ સર્કલ</option><option value="line">લાઇન</option><option value="free">ફ્રી ડ્રો</option>
+        </select>
+        <button class="btn outline" onclick="undoDocMark()">↶ Undo</button>
+        <button class="btn" onclick="saveDocMarks()">💾 Marking Save</button>
+      </div>
+      <div class="note" style="text-align:left">દસ્તાવેજ પર આંગળી અથવા માઉસથી દોરો. Zoom માટે + / − વાપરો. PDF માટે Page બટનથી પેજ બદલો.</div>
+      <div id="docStage" class="doc-stage"><canvas id="docCanvas"></canvas><canvas id="markCanvas"></canvas></div>
+    </div>
+  </div>
+
 <!-- PRINT-ONLY AREA -->
 <div id="printArea">
   <div class="ph-head">
@@ -582,6 +601,7 @@
   <div class="ph-verdict" id="printVerdict" style="display:none"></div>
 </div>
 
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
 <script>
 const GUNTHA_TO_SQFT = 1089;
 const UNIT_SETTINGS_KEY = 'smartCalculatorUnitSettings';
@@ -658,7 +678,7 @@ document.querySelectorAll('.tab').forEach(t => {
   t.addEventListener('click', () => {
     document.querySelectorAll('.tab').forEach(x => x.classList.remove('active'));
     t.classList.add('active');
-    ['convert','deal','settings'].forEach(name => {
+    ['convert','settings','documents'].forEach(name => {
       document.getElementById('tab-' + name).style.display = (name === t.dataset.tab) ? 'block' : 'none';
     });
     document.body.classList.remove('theme-deal','theme-history');
@@ -977,6 +997,96 @@ function renderHistory() {
     </div>
   `).join('');
 }
+
+// ---- LAND DOCUMENT LIBRARY (IndexedDB) ----
+const LAND_DB='WiztechLandDocuments', LAND_STORE='documents';
+let activeLandDoc=null, activePdf=null, activePdfPage=1, docZoom=1, docMarks=[], drawState=null;
+function openLandDB(){
+ return new Promise((resolve,reject)=>{
+  const req=indexedDB.open(LAND_DB,1);
+  req.onupgradeneeded=()=>{if(!req.result.objectStoreNames.contains(LAND_STORE))req.result.createObjectStore(LAND_STORE,{keyPath:'id',autoIncrement:true});};
+  req.onsuccess=()=>resolve(req.result); req.onerror=()=>reject(req.error);
+ });
+}
+async function landDB(action,record,id){
+ const db=await openLandDB();
+ return new Promise((resolve,reject)=>{
+  const tx=db.transaction(LAND_STORE,action==='get'||action==='all'?'readonly':'readwrite');
+  const st=tx.objectStore(LAND_STORE);
+  let req= action==='add'?st.add(record):action==='put'?st.put(record):action==='get'?st.get(id):action==='all'?st.getAll():st.delete(id);
+  req.onsuccess=()=>resolve(req.result);req.onerror=()=>reject(req.error);
+  tx.oncomplete=()=>db.close();
+ });
+}
+async function saveLandDocument(){
+ const file=document.getElementById('docFile').files[0], title=document.getElementById('docTitle').value.trim();
+ const status=document.getElementById('docSaveStatus');
+ if(!file){alert('પહેલા PDF અથવા ફોટો પસંદ કરો.');return;}
+ if(!title){alert('દસ્તાવેજનું નામ લખો.');return;}
+ if(!(file.type==='application/pdf'||file.type.startsWith('image/'))){alert('માત્ર PDF અથવા image ફાઇલ અપલોડ કરો.');return;}
+ try{
+  await landDB('add',{title,village:document.getElementById('docVillage').value.trim(),survey:document.getElementById('docSurvey').value.trim(),name:file.name,type:file.type,blob:file,marks:[],created:new Date().toISOString()});
+  status.textContent='દસ્તાવેજ સફળતાપૂર્વક સેવ થયો ✓';
+  document.getElementById('docTitle').value='';document.getElementById('docVillage').value='';document.getElementById('docSurvey').value='';document.getElementById('docFile').value='';
+  await renderLandDocuments();
+ }catch(e){status.textContent='સેવ ન થઈ શક્યો. બ્રાઉઝર સ્ટોરેજ ખાલી કરો અથવા નાની ફાઇલ અજમાવો.';console.error(e);}
+}
+async function renderLandDocuments(){
+ const all=await landDB('all'), q=(document.getElementById('docSearch').value||'').toLowerCase();
+ const list=document.getElementById('docList');
+ const filtered=all.filter(d=>[d.title,d.village,d.survey,d.name].join(' ').toLowerCase().includes(q));
+ if(!filtered.length){list.innerHTML='<div class="hist-empty">કોઈ દસ્તાવેજ મળ્યો નથી.</div>';return;}
+ list.innerHTML=filtered.sort((a,b)=>b.id-a.id).map(d=>`<div class="doc-list-item">
+ <strong>${escapeDocText(d.title)}</strong><small>ગામ: ${escapeDocText(d.village||'-')} | સર્વે: ${escapeDocText(d.survey||'-')}<br>${escapeDocText(d.name)}</small>
+ <div class="doc-actions"><button class="btn" onclick="openLandDocument(${d.id})">📖 Open / View</button><button class="btn outline" onclick="deleteLandDocument(${d.id})">Delete</button></div></div>`).join('');
+}
+function escapeDocText(v){return String(v||'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
+async function deleteLandDocument(id){if(!confirm('આ દસ્તાવેજ કાયમી ડિલીટ કરવો છે?'))return;await landDB('delete',null,id);renderLandDocuments();if(activeLandDoc?.id===id)closeLandDocument();}
+function resizeMarkCanvas(w,h){
+ const c=document.getElementById('markCanvas');c.width=w;c.height=h;c.style.width=w+'px';c.style.height=h+'px';
+ document.getElementById('docCanvas').style.width=w+'px';document.getElementById('docCanvas').style.height=h+'px';
+}
+async function openLandDocument(id){
+ activeLandDoc=await landDB('get',null,id);if(!activeLandDoc)return;
+ document.getElementById('docViewerCard').style.display='block';document.getElementById('viewerTitle').textContent=activeLandDoc.title;
+ docMarks=activeLandDoc.marks||[];activePdf=null;activePdfPage=1;docZoom=1;
+ if(activeLandDoc.type==='application/pdf'){
+  if(!window.pdfjsLib){alert('PDF viewer લોડ નથી થયું. ઇન્ટરનેટ ચાલુ રાખીને પેજ ફરી ખોલો.');return;}
+  pdfjsLib.GlobalWorkerOptions.workerSrc='https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+  const url=URL.createObjectURL(activeLandDoc.blob);activePdf=await pdfjsLib.getDocument(url).promise;await renderPdfPage();
+ }else{
+  const url=URL.createObjectURL(activeLandDoc.blob),img=new Image();
+  img.onload=()=>{const c=document.getElementById('docCanvas'),ctx=c.getContext('2d');const maxW=Math.min(window.innerWidth-48,1100);const scale=Math.min(1,maxW/img.width)*docZoom;c.width=Math.round(img.width*scale);c.height=Math.round(img.height*scale);ctx.drawImage(img,0,0,c.width,c.height);resizeMarkCanvas(c.width,c.height);drawSavedMarks();};
+  img.src=url;document.getElementById('pdfPageInfo').textContent='Image';
+ }
+ document.getElementById('docViewerCard').scrollIntoView({behavior:'smooth'});
+}
+async function renderPdfPage(){
+ const page=await activePdf.getPage(activePdfPage),base=page.getViewport({scale:1});
+ const maxW=Math.min(window.innerWidth-48,1100),scale=Math.min(1.5,maxW/base.width)*docZoom,viewport=page.getViewport({scale});
+ const c=document.getElementById('docCanvas');c.width=Math.round(viewport.width);c.height=Math.round(viewport.height);
+ await page.render({canvasContext:c.getContext('2d'),viewport}).promise;resizeMarkCanvas(c.width,c.height);drawSavedMarks();
+ document.getElementById('pdfPageInfo').textContent=activePdfPage+' / '+activePdf.numPages;
+}
+function changePdfPage(n){if(!activePdf)return;activePdfPage=Math.max(1,Math.min(activePdf.numPages,activePdfPage+n));renderPdfPage();}
+function changeDocZoom(f){if(!activeLandDoc)return;docZoom=Math.max(.5,Math.min(5,docZoom*f));const id=activeLandDoc.id,marks=docMarks;openLandDocument(id).then(()=>{docMarks=marks;drawSavedMarks();});}
+function resetDocZoom(){if(!activeLandDoc)return;docZoom=1;const id=activeLandDoc.id,marks=docMarks;openLandDocument(id).then(()=>{docMarks=marks;drawSavedMarks();});}
+function closeLandDocument(){document.getElementById('docViewerCard').style.display='none';activeLandDoc=null;activePdf=null;docMarks=[];}
+function drawSavedMarks(){
+ const c=document.getElementById('markCanvas'),ctx=c.getContext('2d');ctx.clearRect(0,0,c.width,c.height);
+ const marks=docMarks.filter(m=>!activePdf||m.page===activePdfPage);
+ marks.forEach(m=>{const sx=c.width/(m.canvasW||c.width),sy=c.height/(m.canvasH||c.height);ctx.save();ctx.scale(sx,sy);ctx.strokeStyle=m.color;ctx.lineWidth=m.width||4;ctx.lineCap='round';ctx.beginPath();if(m.tool==='circle'){ctx.ellipse(m.x,m.y,m.w,m.h,0,0,Math.PI*2);}else{ctx.moveTo(m.points[0][0],m.points[0][1]);m.points.slice(1).forEach(p=>ctx.lineTo(p[0],p[1]));}ctx.stroke();ctx.restore();});
+}
+function pointerPos(e){const r=document.getElementById('markCanvas').getBoundingClientRect();return [e.clientX-r.left,e.clientY-r.top];}
+const markCanvas=document.getElementById('markCanvas');
+markCanvas.addEventListener('pointerdown',e=>{if(!activeLandDoc)return;e.preventDefault();markCanvas.setPointerCapture(e.pointerId);const [x,y]=pointerPos(e);drawState={tool:document.getElementById('markTool').value,color:document.getElementById('markColor').value,x,y,points:[[x,y]],page:activePdf?activePdfPage:0,canvasW:markCanvas.width,canvasH:markCanvas.height};});
+markCanvas.addEventListener('pointermove',e=>{if(!drawState)return;const [x,y]=pointerPos(e);drawState.points.push([x,y]);drawSavedMarks();const ctx=markCanvas.getContext('2d');ctx.strokeStyle=drawState.color;ctx.lineWidth=4;ctx.lineCap='round';ctx.beginPath();if(drawState.tool==='circle'){ctx.ellipse(drawState.x,drawState.y,Math.abs(x-drawState.x),Math.abs(y-drawState.y),0,0,Math.PI*2);}else{ctx.moveTo(...drawState.points[0]);drawState.points.slice(1).forEach(p=>ctx.lineTo(...p));}ctx.stroke();});
+markCanvas.addEventListener('pointerup',e=>{if(!drawState)return;const [x,y]=pointerPos(e);if(drawState.tool==='circle')docMarks.push({...drawState,w:Math.max(2,Math.abs(x-drawState.x)),h:Math.max(2,Math.abs(y-drawState.y))});else docMarks.push({...drawState});drawState=null;drawSavedMarks();});
+async function saveDocMarks(){if(!activeLandDoc)return;activeLandDoc.marks=docMarks;await landDB('put',activeLandDoc);alert('માર્કિંગ સેવ થઈ ગઈ ✓');}
+function undoDocMark(){if(!docMarks.length)return;docMarks.pop();drawSavedMarks();}
+document.getElementById('docSearch').addEventListener('input',renderLandDocuments);
+renderLandDocuments().catch(()=>{});
+
 </script>
 </body>
 </html>
