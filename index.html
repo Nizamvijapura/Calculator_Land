@@ -352,6 +352,93 @@
     .settings-fields label { font-size:11px; }
   }
 
+
+  /* Dark professional theme + improved mobile readability */
+  :root { color-scheme: dark; }
+  body, body.theme-deal, body.theme-history {
+    background: radial-gradient(ellipse at top, #173b5d 0%, #0a192b 58%, #071321 100%) !important;
+    color: #edf4fc !important;
+  }
+  header {
+    background: linear-gradient(125deg, #071a2d 0%, #123b60 55%, #164c70 100%) !important;
+    border: 1px solid #315779;
+    box-shadow: 0 14px 34px rgba(0,0,0,.35) !important;
+  }
+  .tabs {
+    background: #102b43 !important;
+    border: 1px solid #31516d !important;
+    box-shadow: 0 6px 18px rgba(0,0,0,.22) !important;
+  }
+  .tab { color: #d5e4f3 !important; }
+  .tab.active {
+    background: #1d527b !important;
+    color: #ffffff !important;
+    box-shadow: inset 0 0 0 1px #4a7da4, 0 3px 10px rgba(0,0,0,.2) !important;
+  }
+  .card {
+    background: #10263b !important;
+    border: 1px solid #294963 !important;
+    color: #edf4fc !important;
+    box-shadow: 0 14px 30px rgba(0,0,0,.25) !important;
+  }
+  .card h2, .survey-entry-head strong, .unit-settings-title strong {
+    color: #f3f8ff !important;
+  }
+  label, .row, .hist-item .top { color: #d8e6f4 !important; }
+  input[type=number], input[type=text], input[type=tel], select, textarea {
+    background: #0a1b2b !important;
+    border: 1.5px solid #3a5d7b !important;
+    color: #f4f8fd !important;
+  }
+  input::placeholder, textarea::placeholder { color: #9eb2c7 !important; opacity: 1; }
+  .results, .survey-entry, .unit-settings, .hist-item {
+    background: #0b1e30 !important;
+    border: 1px solid #2b4b66 !important;
+    color: #e7f0f9 !important;
+  }
+  .row { border-bottom-color: #29465f !important; }
+  .row .val, .row.big .val { color: #70d5d0 !important; }
+  .total-value { color: #70d5d0 !important; }
+  .unit-settings-title span, .settings-status, .survey-help,
+  .survey-total-hint, .note, .hist-item .sub, .hist-empty {
+    color: #afc2d5 !important;
+  }
+  .btn, .save-settings-btn {
+    background: linear-gradient(120deg, #17618e, #087f83) !important;
+    color: #fff !important;
+    border: 1px solid #3988a5 !important;
+    font-weight: 800 !important;
+  }
+  .btn.outline, .clear-btn {
+    background: #122f49 !important;
+    color: #dcecff !important;
+    border: 1px solid #426481 !important;
+  }
+  .survey-remove {
+    background: #3a2028 !important;
+    color: #ffd7d7 !important;
+    border-color: #87515b !important;
+  }
+  .copyright, .copyright .dev-line, .support-line { color: #d8e8f7 !important; }
+  .wiztech-brand { color: #b5c8dc !important; }
+  .save-settings-btn { width: 100%; margin: 8px 0 4px; padding: 14px; }
+  .settings-status { line-height: 1.5; }
+  @media (max-width: 600px) {
+    body { padding: 10px 8px 24px !important; }
+    .wrap { width: 100% !important; max-width: 100% !important; }
+    header { padding: 18px 12px 16px !important; border-radius: 15px !important; }
+    header h1 { font-size: 29px !important; }
+    .tabs { width: 100%; overflow-x: auto; gap: 4px; }
+    .tab { min-width: 0; flex: 1 1 0; white-space: normal; padding: 11px 4px !important; line-height: 1.25; }
+    .card { padding: 15px !important; border-radius: 15px !important; }
+    .settings-fields { display: flex; gap: 8px !important; }
+    .settings-fields > div { flex: 1 1 0; min-width: 0; }
+    .settings-fields input { width: 100%; min-width: 0; }
+    .survey-measures { display: flex; }
+    .survey-measures > div { min-width: 0; }
+    .survey-measures input { width: 100%; }
+  }
+
 </style>
 </head>
 <body>
@@ -468,6 +555,7 @@
             <input type="number" id="vighaGunthaSetting" value="16" min="0.0001" step="any">
           </div>
         </div>
+        <button type="button" class="btn save-settings-btn" onclick="saveUnitSettings()">💾 Save Settings</button>
         <div id="unitSettingsStatus" class="settings-status">Default: 1 એકર = 40 ગુંઠા • 1 વિઘા = 16 ગુંઠા</div>
       </div>
       <div class="note" style="color:#718198;text-align:left;margin-top:8px;">
@@ -535,8 +623,13 @@ function initializeUnitSettings() {
   loadUnitSettings();
   document.getElementById('acreGunthaSetting').value = UNIT_SETTINGS.acreGuntha;
   document.getElementById('vighaGunthaSetting').value = UNIT_SETTINGS.vighaGuntha;
-  document.getElementById('acreGunthaSetting').addEventListener('change', saveUnitSettings);
-  document.getElementById('vighaGunthaSetting').addEventListener('change', saveUnitSettings);
+  const markSettingsPending = () => {
+    const status = document.getElementById('unitSettingsStatus');
+    status.textContent = 'માપ બદલાયું છે. લાગુ કરવા Save Settings દબાવો.';
+    status.style.color = '#f2c66d';
+  };
+  document.getElementById('acreGunthaSetting').addEventListener('input', markSettingsPending);
+  document.getElementById('vighaGunthaSetting').addEventListener('input', markSettingsPending);
 }
 
 const SQFT_TO_SQM = 0.092903;
