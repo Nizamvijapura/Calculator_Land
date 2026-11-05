@@ -442,7 +442,7 @@
 
   .doc-tools{display:flex;align-items:center;gap:7px;flex-wrap:wrap;margin:10px 0}
   .doc-tools .btn{width:auto;flex:1 1 auto;margin:0;padding:10px 12px}
-  .doc-stage{position:relative;overflow:auto;-webkit-overflow-scrolling:touch;background:#071321;border:1px solid #426481;border-radius:10px;min-height:220px;max-height:75vh;text-align:left;touch-action:pan-x pan-y;overscroll-behavior:contain}
+  .doc-stage{position:relative;overflow:auto;-webkit-overflow-scrolling:touch;background:#071321;border:1px solid #426481;border-radius:10px;min-height:220px;max-height:75vh;text-align:left;touch-action:pan-x pan-y pinch-zoom;overscroll-behavior:contain}
   #localDocCanvas{display:block;margin:0;max-width:none;height:auto}
   #localMarkCanvas{position:absolute;left:0;top:0;transform:none;touch-action:none;-webkit-user-select:none;user-select:none;-webkit-touch-callout:none;cursor:crosshair;z-index:2}
   .doc-list-item{background:#0b1e30;border:1px solid #2b4b66;border-radius:11px;padding:12px;margin-top:9px}
@@ -565,6 +565,8 @@
         <button class="btn outline" onclick="localPage(1)">Page ▶</button>
       </div>
       <div class="doc-tools">
+        <button class="btn" id="localNavMode" type="button" onclick="setLocalMode('navigate')">✋ Zoom / Move</button>
+        <button class="btn outline" id="localDrawMode" type="button" onclick="setLocalMode('draw')">✏️ Marking Mode</button>
         <label style="margin:0">રંગ</label><input type="color" id="localMarkColor" value="#ff2020" style="width:48px;height:40px;padding:2px;margin:0">
         <label style="margin:0">માર્કિંગ</label>
         <select id="localMarkTool" style="width:auto;min-width:115px;margin:0">
@@ -572,9 +574,10 @@
         </select>
         <button class="btn outline" onclick="localUndo()">↶ Undo</button>
       </div>
-      <div class="note" style="text-align:left">દસ્તાવેજ પર આંગળી અથવા માઉસથી માર્કિંગ કરો. Save દબાવતાં Marked Copy બનશે.</div>
+      <div class="note" id="localGestureHelp" style="text-align:left">Zoom / Move મોડ: બે આંગળીથી pinch કરીને zoom કરો અને એક આંગળીથી પાનું ખસેડો. માર્કિંગ કરવા Marking Mode પસંદ કરો.</div>
       <div id="localDocStage" class="doc-stage"><canvas id="localDocCanvas"></canvas><canvas id="localMarkCanvas"></canvas></div>
-      <button class="btn" type="button" onclick="saveMarkedLocalCopy()">💾 Upload & Save / Marked Copy Save</button>
+      <button class="btn" type="button" onclick="saveMarkedLocalCopy()">💾 Marked Copy Save</button>
+      <button class="btn outline" type="button" onclick="saveA4Jpg()">🖼️ A4 Size JPG Save</button>
       <div class="note" id="localSaveStatus">મૂળ ફાઇલ તમારા ડિવાઇસમાં જ રહેશે. માર્કિંગ નવી કોપીમાં સેવ થશે.</div>
     </div>
   </div>
@@ -591,8 +594,58 @@
   <div class="ph-verdict" id="printVerdict" style="display:none"></div>
 </div>
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf-lib/1.17.1/pdf-lib.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js">
+async function saveA4Jpg(){
+ if(!localFile){alert('પહેલા નકશો અથવા ઉતારો Attach કરો.');return;}
+ const status=document.getElementById('localSaveStatus');status.textContent='A4 JPG તૈયાર થઈ રહી છે...';
+ try{
+  // A4 portrait at 200 DPI (1654 x 2339) keeps mobile memory usage reasonable.
+  const W=1654,H=2339,out=document.createElement('canvas');out.width=W;out.height=H;
+  const ctx=out.getContext('2d');ctx.fillStyle='#ffffff';ctx.fillRect(0,0,W,H);
+  const margin=70,scale=Math.min((W-2*margin)/localDocCanvas.width,(H-2*margin)/localDocCanvas.height);
+  const dw=localDocCanvas.width*scale,dh=localDocCanvas.height*scale,dx=(W-dw)/2,dy=(H-dh)/2;
+  ctx.drawImage(localDocCanvas,dx,dy,dw,dh);
+  ctx.drawImage(localMarkCanvas,dx,dy,dw,dh);
+  const blob=await new Promise((resolve,reject)=>out.toBlob(b=>b?resolve(b):reject(new Error('JPG બનાવવામાં ભૂલ')), 'image/jpeg',.94));
+  const name=(localFile.name.replace(/\.[^.]+$/,'')+'_A4_marked.jpg');
+  const file=new File([blob],name,{type:'image/jpeg'});
+  if(navigator.canShare&&navigator.canShare({files:[file]})){
+   try{await navigator.share({files:[file],title:'A4 Marked Map'});status.textContent='A4 JPG Share Sheet માં ખુલ્યું. Save Image / Save to Files પસંદ કરો.';return;}
+   catch(e){if(e.name==='AbortError'){status.textContent='Share રદ થયું.';return;}}
+  }
+  const url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download=name;document.body.appendChild(a);a.click();a.remove();
+  setTimeout(()=>URL.revokeObjectURL(url),30000);
+  status.textContent='A4 JPG તૈયાર છે. iPhone માં ખોલીને Share → Save Image કરો અથવા Files માં સેવ કરો.';
+ }catch(e){console.error(e);status.textContent='A4 JPG સેવ ન થઈ: '+e.message;alert('A4 JPG બનાવવામાં ભૂલ: '+e.message);}
+}
+
+</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf-lib/1.17.1/pdf-lib.min.js">
+async function saveA4Jpg(){
+ if(!localFile){alert('પહેલા નકશો અથવા ઉતારો Attach કરો.');return;}
+ const status=document.getElementById('localSaveStatus');status.textContent='A4 JPG તૈયાર થઈ રહી છે...';
+ try{
+  // A4 portrait at 200 DPI (1654 x 2339) keeps mobile memory usage reasonable.
+  const W=1654,H=2339,out=document.createElement('canvas');out.width=W;out.height=H;
+  const ctx=out.getContext('2d');ctx.fillStyle='#ffffff';ctx.fillRect(0,0,W,H);
+  const margin=70,scale=Math.min((W-2*margin)/localDocCanvas.width,(H-2*margin)/localDocCanvas.height);
+  const dw=localDocCanvas.width*scale,dh=localDocCanvas.height*scale,dx=(W-dw)/2,dy=(H-dh)/2;
+  ctx.drawImage(localDocCanvas,dx,dy,dw,dh);
+  ctx.drawImage(localMarkCanvas,dx,dy,dw,dh);
+  const blob=await new Promise((resolve,reject)=>out.toBlob(b=>b?resolve(b):reject(new Error('JPG બનાવવામાં ભૂલ')), 'image/jpeg',.94));
+  const name=(localFile.name.replace(/\.[^.]+$/,'')+'_A4_marked.jpg');
+  const file=new File([blob],name,{type:'image/jpeg'});
+  if(navigator.canShare&&navigator.canShare({files:[file]})){
+   try{await navigator.share({files:[file],title:'A4 Marked Map'});status.textContent='A4 JPG Share Sheet માં ખુલ્યું. Save Image / Save to Files પસંદ કરો.';return;}
+   catch(e){if(e.name==='AbortError'){status.textContent='Share રદ થયું.';return;}}
+  }
+  const url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download=name;document.body.appendChild(a);a.click();a.remove();
+  setTimeout(()=>URL.revokeObjectURL(url),30000);
+  status.textContent='A4 JPG તૈયાર છે. iPhone માં ખોલીને Share → Save Image કરો અથવા Files માં સેવ કરો.';
+ }catch(e){console.error(e);status.textContent='A4 JPG સેવ ન થઈ: '+e.message;alert('A4 JPG બનાવવામાં ભૂલ: '+e.message);}
+}
+
+</script>
 <script>
 const GUNTHA_TO_SQFT = 1089;
 const UNIT_SETTINGS_KEY = 'smartCalculatorUnitSettings';
@@ -838,7 +891,7 @@ function renderHistory() {
 }
 
 // ---- LOCAL FILE OPEN + MARK + EXPORT (NO SERVER / NO APP FILE STORAGE) ----
-let localFile=null,localPdf=null,localPageNo=1,localZoomFactor=1,localMarks=[],localDraw=null,localObjectUrl=null;
+let localFile=null,localPdf=null,localPageNo=1,localZoomFactor=1,localMarks=[],localDraw=null,localObjectUrl=null,localMode='navigate',localPointers=new Map(),localPinchStart=0,localPinchZoom=1;
 const localDocCanvas=document.getElementById('localDocCanvas');
 const localMarkCanvas=document.getElementById('localMarkCanvas');
 function filterLocalFileName(){
@@ -914,16 +967,51 @@ function localEnd(x,y){
  if(localDraw.tool==='circle'){localDraw.w=Math.max(2,Math.abs(x-localDraw.x));localDraw.h=Math.max(2,Math.abs(y-localDraw.y));}
  localMarks.push(localDraw);localDraw=null;drawLocalMarks();
 }
-if(window.PointerEvent){
- localMarkCanvas.addEventListener('pointerdown',e=>{e.preventDefault();try{localMarkCanvas.setPointerCapture(e.pointerId)}catch(_){}const p=localPoint(e);localBegin(...p);});
- localMarkCanvas.addEventListener('pointermove',e=>{if(localDraw){e.preventDefault();localMove(...localPoint(e));}});
- localMarkCanvas.addEventListener('pointerup',e=>{if(localDraw){e.preventDefault();localEnd(...localPoint(e));}});
- localMarkCanvas.addEventListener('pointercancel',()=>{localDraw=null;});
-}else{
- localMarkCanvas.addEventListener('touchstart',e=>{e.preventDefault();const t=e.touches[0],r=localMarkCanvas.getBoundingClientRect();localBegin((t.clientX-r.left)*localMarkCanvas.width/r.width,(t.clientY-r.top)*localMarkCanvas.height/r.height);},{passive:false});
- localMarkCanvas.addEventListener('touchmove',e=>{if(!localDraw)return;e.preventDefault();const t=e.touches[0],r=localMarkCanvas.getBoundingClientRect();localMove((t.clientX-r.left)*localMarkCanvas.width/r.width,(t.clientY-r.top)*localMarkCanvas.height/r.height);},{passive:false});
- localMarkCanvas.addEventListener('touchend',e=>{if(!localDraw)return;e.preventDefault();const t=e.changedTouches[0],r=localMarkCanvas.getBoundingClientRect();localEnd((t.clientX-r.left)*localMarkCanvas.width/r.width,(t.clientY-r.top)*localMarkCanvas.height/r.height);},{passive:false});
+function setLocalMode(mode){
+ localMode=mode;localDraw=null;
+ document.getElementById('localNavMode').className=mode==='navigate'?'btn':'btn outline';
+ document.getElementById('localDrawMode').className=mode==='draw'?'btn':'btn outline';
+ document.getElementById('localGestureHelp').textContent=mode==='navigate'
+  ?'Zoom / Move મોડ: બે આંગળીથી pinch કરીને zoom કરો અને એક આંગળીથી પાનું ખસેડો. માર્કિંગ કરવા Marking Mode પસંદ કરો.'
+  :'Marking Mode: એક આંગળી અથવા માઉસથી સર્કલ / લાઇન દોરો. Pinch zoom માટે Zoom / Move મોડ પસંદ કરો.';
 }
+function pointerDistance(){
+ const pts=[...localPointers.values()];if(pts.length<2)return 0;
+ return Math.hypot(pts[0].x-pts[1].x,pts[0].y-pts[1].y);
+}
+if(window.PointerEvent){
+ localMarkCanvas.addEventListener('pointerdown',e=>{
+  e.preventDefault();try{localMarkCanvas.setPointerCapture(e.pointerId)}catch(_){}
+  localPointers.set(e.pointerId,{x:e.clientX,y:e.clientY});
+  if(localMode==='navigate'&&localPointers.size===2){localPinchStart=pointerDistance();localPinchZoom=localZoomFactor;}
+  if(localMode==='draw'&&localPointers.size===1){const pt=localPoint(e);localBegin(...pt);}
+ });
+ localMarkCanvas.addEventListener('pointermove',e=>{
+  if(!localPointers.has(e.pointerId))return;
+  localPointers.set(e.pointerId,{x:e.clientX,y:e.clientY});
+  if(localMode==='navigate'&&localPointers.size>=2){
+   const d=pointerDistance();if(localPinchStart>0&&d>0){
+    const next=Math.max(.5,Math.min(8,localPinchZoom*d/localPinchStart));
+    if(Math.abs(next-localZoomFactor)>.035){localZoomFactor=next;(localPdf?renderLocalPdfPage():renderLocalImage()).catch(()=>{});}
+   }
+  }else if(localMode==='draw'&&localDraw){e.preventDefault();localMove(...localPoint(e));}
+ });
+ const endPointer=e=>{localPointers.delete(e.pointerId);if(localMode==='draw'&&localDraw){const pt=localPoint(e);localEnd(...pt);}if(localPointers.size<2)localPinchStart=0;};
+ localMarkCanvas.addEventListener('pointerup',endPointer);
+ localMarkCanvas.addEventListener('pointercancel',endPointer);
+}else{
+ // Touch fallback: distinguish navigation/pinch from marking mode
+ localMarkCanvas.addEventListener('touchstart',e=>{
+  if(localMode==='draw'&&e.touches.length===1){e.preventDefault();const t=e.touches[0],r=localMarkCanvas.getBoundingClientRect();localBegin((t.clientX-r.left)*localMarkCanvas.width/r.width,(t.clientY-r.top)*localMarkCanvas.height/r.height);}
+  else if(localMode==='navigate'&&e.touches.length===2){e.preventDefault();const [a,b]=e.touches;localPinchStart=Math.hypot(a.clientX-b.clientX,a.clientY-b.clientY);localPinchZoom=localZoomFactor;}
+ },{passive:false});
+ localMarkCanvas.addEventListener('touchmove',e=>{
+  if(localMode==='draw'&&localDraw&&e.touches.length===1){e.preventDefault();const t=e.touches[0],r=localMarkCanvas.getBoundingClientRect();localMove((t.clientX-r.left)*localMarkCanvas.width/r.width,(t.clientY-r.top)*localMarkCanvas.height/r.height);}
+  else if(localMode==='navigate'&&e.touches.length===2){e.preventDefault();const [a,b]=e.touches,d=Math.hypot(a.clientX-b.clientX,a.clientY-b.clientY);if(localPinchStart){localZoomFactor=Math.max(.5,Math.min(8,localPinchZoom*d/localPinchStart));(localPdf?renderLocalPdfPage():renderLocalImage()).catch(()=>{});}}
+ },{passive:false});
+ localMarkCanvas.addEventListener('touchend',e=>{if(localDraw&&localMode==='draw'){const t=e.changedTouches[0],r=localMarkCanvas.getBoundingClientRect();localEnd((t.clientX-r.left)*localMarkCanvas.width/r.width,(t.clientY-r.top)*localMarkCanvas.height/r.height);}if(e.touches.length<2)localPinchStart=0;},{passive:false});
+}
+setLocalMode('navigate');
 function localUndo(){if(localMarks.length){localMarks.pop();drawLocalMarks();}}
 function localPage(delta){if(!localPdf)return;localPageNo=Math.max(1,Math.min(localPdf.numPages,localPageNo+delta));renderLocalPdfPage().catch(e=>alert(e.message));}
 function localZoom(f,fit=false){if(!localFile)return;localZoomFactor=fit?1:Math.max(.5,Math.min(4,localZoomFactor*f));(localPdf?renderLocalPdfPage():renderLocalImage()).catch(e=>alert(e.message));}
@@ -976,6 +1064,31 @@ async function saveMarkedLocalCopy(){
   status.textContent='Marked Copy ડાઉનલોડ થઈ રહી છે. iPhone માં Files app માં Save કરી શકો છો. ✓';
  }catch(e){console.error(e);status.textContent='Save થઈ શક્યું નથી: '+e.message;alert('Marked Copy સેવ કરવામાં ભૂલ: '+e.message);}
 }
+
+async function saveA4Jpg(){
+ if(!localFile){alert('પહેલા નકશો અથવા ઉતારો Attach કરો.');return;}
+ const status=document.getElementById('localSaveStatus');status.textContent='A4 JPG તૈયાર થઈ રહી છે...';
+ try{
+  // A4 portrait at 200 DPI (1654 x 2339) keeps mobile memory usage reasonable.
+  const W=1654,H=2339,out=document.createElement('canvas');out.width=W;out.height=H;
+  const ctx=out.getContext('2d');ctx.fillStyle='#ffffff';ctx.fillRect(0,0,W,H);
+  const margin=70,scale=Math.min((W-2*margin)/localDocCanvas.width,(H-2*margin)/localDocCanvas.height);
+  const dw=localDocCanvas.width*scale,dh=localDocCanvas.height*scale,dx=(W-dw)/2,dy=(H-dh)/2;
+  ctx.drawImage(localDocCanvas,dx,dy,dw,dh);
+  ctx.drawImage(localMarkCanvas,dx,dy,dw,dh);
+  const blob=await new Promise((resolve,reject)=>out.toBlob(b=>b?resolve(b):reject(new Error('JPG બનાવવામાં ભૂલ')), 'image/jpeg',.94));
+  const name=(localFile.name.replace(/\.[^.]+$/,'')+'_A4_marked.jpg');
+  const file=new File([blob],name,{type:'image/jpeg'});
+  if(navigator.canShare&&navigator.canShare({files:[file]})){
+   try{await navigator.share({files:[file],title:'A4 Marked Map'});status.textContent='A4 JPG Share Sheet માં ખુલ્યું. Save Image / Save to Files પસંદ કરો.';return;}
+   catch(e){if(e.name==='AbortError'){status.textContent='Share રદ થયું.';return;}}
+  }
+  const url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download=name;document.body.appendChild(a);a.click();a.remove();
+  setTimeout(()=>URL.revokeObjectURL(url),30000);
+  status.textContent='A4 JPG તૈયાર છે. iPhone માં ખોલીને Share → Save Image કરો અથવા Files માં સેવ કરો.';
+ }catch(e){console.error(e);status.textContent='A4 JPG સેવ ન થઈ: '+e.message;alert('A4 JPG બનાવવામાં ભૂલ: '+e.message);}
+}
+
 </script>
 </body>
 </html>
