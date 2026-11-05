@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
-<title>Wiztech Land Record</title>
+<title>Smart Calculator</title>
 <style>
   * { box-sizing: border-box; }
   .tab, .btn, .clear-btn {
@@ -174,29 +174,203 @@
     #printArea .ph-verdict { margin-top:16px; padding:14px; border:2px solid #0b2f52; border-radius:8px; text-align:center; font-weight:700; font-size:18px; }
     .card { box-shadow:none !important; }
   }
+
+  /* Smart Calculator - professional interface */
+  :root { color-scheme: light; }
+  body {
+    background: radial-gradient(circle at top left, #e8f1fb 0%, #f3f6fb 42%, #e9eef6 100%);
+    color: #172b4d;
+    padding: 24px 16px 36px;
+    font-family: 'Noto Sans Gujarati', 'Segoe UI', Arial, sans-serif;
+  }
+  body.theme-deal, body.theme-history {
+    background: radial-gradient(circle at top left, #e8f1fb 0%, #f3f6fb 42%, #e9eef6 100%);
+  }
+  .wrap { max-width: 540px; }
+  header {
+    color: #fff;
+    background: linear-gradient(120deg, #102b4e, #174d78);
+    border-radius: 20px;
+    padding: 24px 18px 20px;
+    margin: 0 auto 18px;
+    box-shadow: 0 12px 28px rgba(16,43,78,.18);
+  }
+  header h1 {
+    font-family: 'Segoe UI', Arial, sans-serif;
+    font-size: clamp(27px, 5vw, 34px);
+    letter-spacing: .2px;
+  }
+  .copyright { font-size: 16px; color: #dce9f7; margin-bottom: 0; }
+  .copyright .dev-line { font-size: 13px; color: #b9cee3; }
+  .support-line { font-size: 14px; }
+  .support-line a { color: #fff; }
+  .tabs {
+    background: #dce6f1;
+    border: 1px solid #d1dce9;
+    border-radius: 14px;
+    padding: 5px;
+    gap: 4px;
+    margin-bottom: 18px;
+    box-shadow: 0 4px 12px rgba(27,55,90,.06);
+  }
+  .tab {
+    color: #425b78;
+    border-radius: 10px;
+    font-size: 14px;
+    padding: 12px 6px;
+    font-weight: 700;
+  }
+  .tab.active, .tab:nth-child(1).active, .tab:nth-child(2).active, .tab:nth-child(3).active {
+    background: #fff;
+    color: #145b91;
+    box-shadow: 0 2px 8px rgba(22,52,86,.12);
+  }
+  .card {
+    border: 1px solid #e1e8f0;
+    border-radius: 18px;
+    padding: 21px;
+    box-shadow: 0 12px 30px rgba(24,49,79,.09);
+    margin-bottom: 16px;
+  }
+  .card h2 { color: #173b60; font-size: 19px; }
+  label { color: #40536b; font-size: 14px; font-weight: 700; }
+  input[type=number], input[type=text], input[type=tel], select, textarea {
+    border: 1.5px solid #d6e0eb;
+    border-radius: 11px;
+    background: #fbfdff;
+    color: #172b4d;
+    font-size: 17px;
+    transition: border-color .18s ease, box-shadow .18s ease;
+  }
+  input[type=number]:focus, input[type=text]:focus, input[type=tel]:focus, select:focus, textarea:focus {
+    border-color: #2879b7;
+    box-shadow: 0 0 0 3px rgba(40,121,183,.12);
+  }
+  .results {
+    background: #f1f6fb;
+    border: 1px solid #e0eaf4;
+    border-radius: 13px;
+    padding: 13px 14px;
+    margin-top: 8px;
+  }
+  .row {
+    border-bottom: 1px solid #dfe8f1;
+    color: #42536a;
+    font-size: 15.5px;
+    padding: 9px 0;
+  }
+  .row .val { color: #173b60; font-weight: 800; }
+  .row.big {
+    margin-top: 4px;
+    padding-top: 13px;
+    border-top: 1px solid #cbd9e8;
+  }
+  .row.big .val { color: #087e8b; font-size: 20px; }
+  .total-value { color: #087e8b !important; }
+  .btn {
+    background: linear-gradient(120deg, #145b91, #087e8b);
+    border-radius: 11px;
+    font-size: 15.5px;
+    padding: 13px;
+    box-shadow: 0 4px 10px rgba(20,91,145,.13);
+  }
+  .btn.outline {
+    background: #fff;
+    color: #145b91;
+    border: 1.5px solid #b9cde0;
+    box-shadow: none;
+  }
+  .btn.whatsapp-btn { background: #159b69; }
+  .clear-btn {
+    border: 1px solid #d5e0eb;
+    background: #f8fafc;
+    color: #53677f;
+    font-size: 13px;
+  }
+  .hist-item {
+    background: #f1f6fb;
+    border: 1px solid #e0eaf4;
+    border-radius: 12px;
+  }
+  .hist-item .top { color: #173b60; }
+  .hist-item .sub { color: #647890; }
+  .hist-empty { color: #718198; }
+  .note { color: #6c7e92; font-size: 13px; }
+  .wiztech-brand { color: #61758d; }
+  .unit-settings {
+    background:#f7faff;
+    border:1px solid #dce7f2;
+    border-radius:12px;
+    padding:13px;
+    margin:4px 0 14px;
+  }
+  .unit-settings-title { display:flex; flex-direction:column; gap:2px; margin-bottom:10px; }
+  .unit-settings-title strong { color:#173b60; font-size:14px; }
+  .unit-settings-title span, .settings-status { color:#718198; font-size:12px; }
+  .settings-fields { gap:9px; }
+  .settings-fields > div { min-width:0; flex:1; }
+  .settings-fields label { font-size:12px; min-height:32px; }
+  .settings-fields input { min-width:0; padding:10px 8px; font-size:16px; margin-bottom:7px; }
+  .settings-status { margin-top:3px; }
+
+  .survey-head { margin: 2px 0 10px; }
+  .survey-head label { margin-bottom: 3px; }
+  .survey-help, .survey-total-hint { display:block; color:#718198; font-size:12px; }
+  .survey-entry {
+    background:#f7faff;
+    border:1px solid #dce7f2;
+    border-radius:12px;
+    padding:12px;
+    margin:10px 0;
+  }
+  .survey-entry-head { display:flex; align-items:center; justify-content:space-between; margin-bottom:9px; }
+  .survey-entry-head strong { color:#173b60; font-size:14px; }
+  .survey-entry .survey-number { margin-bottom:10px; }
+  .survey-measures { gap:8px; }
+  .survey-measures > div { min-width:0; flex:1; }
+  .survey-measures label { font-size:12px; margin-bottom:4px; }
+  .survey-measures input { min-width:0; padding:10px 8px; font-size:16px; }
+  .survey-remove {
+    border:1px solid #f0caca; color:#b54747; background:#fff7f7;
+    border-radius:8px; padding:5px 9px; font-size:12px; cursor:pointer;
+  }
+  .survey-remove:disabled { display:none; }
+  .add-survey-btn { margin-top:4px; font-size:14px; padding:10px; }
+  .survey-total-hint { margin-top:8px; }
+
+  @media (max-width: 430px) {
+    body { padding: 12px 10px 24px; }
+    header { padding: 20px 12px 17px; }
+    .card { padding: 16px; }
+    .tab { font-size: 12.5px; padding: 11px 3px; }
+    .row { font-size: 14px; }
+    .settings-fields { gap:7px; }
+    .settings-fields label { font-size:11px; }
+  }
+
 </style>
 </head>
 <body>
 <div class="wrap">
   <header>
-    <h1>Wiztech Land Record</h1>
+    <h1>Smart Calculator</h1>
     <div class="copyright">
       <div>© Wiztech Innovation LLP</div>
-      <div class="dev-line">Software Developed by Wiztech Innovation LLP</div>
+      <div class="dev-line">A Smart Land & Deal Calculator</div>
       <div class="support-line">Support : <a href="tel:9727908889">9727908889</a></div>
     </div>
   </header>
 
   <div class="tabs">
-    <button type="button" class="tab active" data-tab="convert">Convert</button>
-    <button type="button" class="tab" data-tab="deal">Deal</button>
-    <button type="button" class="tab" data-tab="history">History</button>
+    <button type="button" class="tab active" data-tab="convert">Converter</button>
+    <button type="button" class="tab" data-tab="deal">Deal Calculator</button>
+    <button type="button" class="tab" data-tab="history">Saved History</button>
   </div>
 
   <!-- CONVERT TAB -->
   <div id="tab-convert">
     <div class="card">
-      <div class="card-head"><h2>Unit Converter</h2><button class="clear-btn" onclick="clearConvert()">Clear</button></div>
+      <div class="card-head"><h2>Land Unit Converter</h2><button class="clear-btn" onclick="clearConvert()">Clear</button></div>
       <label>Convert From</label>
       <select id="convUnit">
         <option value="acre">Acre</option>
@@ -207,24 +381,38 @@
       </select>
       <label id="convInLabel">Enter Guntha</label>
       <input type="number" id="convIn" placeholder="e.g. 15" step="any">
-      <div id="convVighaGroup" style="display:none">
-        <label>1 વિઘા = કેટલા ગુંઠા? (તમારા વિસ્તાર પ્રમાણે બદલો)</label>
-        <input type="number" id="convVighaRatio" value="16" step="any">
+      <div class="unit-settings">
+        <div class="unit-settings-title">
+          <strong>માપના સેટિંગ્સ</strong>
+          <span>એકવાર સેટ કરો — આપમેળે સેવ થશે</span>
+        </div>
+        <div class="two-col settings-fields">
+          <div>
+            <label>1 એકર = કેટલા ગુંઠા?</label>
+            <input type="number" id="acreGunthaSetting" value="40" min="0.0001" step="any">
+          </div>
+          <div>
+            <label>1 વિઘા = કેટલા ગુંઠા?</label>
+            <input type="number" id="vighaGunthaSetting" value="16" min="0.0001" step="any">
+          </div>
+        </div>
+        <div id="unitSettingsStatus" class="settings-status">Default: 1 એકર = 40 ગુંઠા • 1 વિઘા = 16 ગુંઠા</div>
       </div>
       <div id="convHaaGroup" style="display:none">
-        <label>હેક્ટર - આર - ચો.મી (7/12 ઉતારા મુજબ)</label>
-        <div class="two-col">
-          <div><input type="number" id="convHectare" placeholder="હે." step="any"></div>
-          <div><input type="number" id="convAre" placeholder="આર" step="any"></div>
-          <div><input type="number" id="convSqm" placeholder="ચો.મી" step="any"></div>
+        <div class="survey-head">
+          <label>7/12 ઉતારા મુજબ અલગ અલગ જમીન ઉમેરો</label>
+          <span class="survey-help">દરેક ઉતારાનું માપ અલગ દાખલ કરો</span>
         </div>
+        <div id="surveyRows"></div>
+        <button type="button" class="btn outline add-survey-btn" onclick="addSurveyRow()">＋ Add Another Survey</button>
+        <div class="survey-total-hint">બધા ઉતારાનું ક્ષેત્રફળ આપમેળે જોડાશે.</div>
       </div>
       <label id="convRateLabel">Rate per Guntha (₹)</label>
       <input type="number" id="convRate" placeholder="e.g. 4000000" step="any">
       <div class="results" id="convResult" style="display:none">
         <div class="row"><span>Acre</span><span class="val" id="conv_acre">-</span></div>
+        <div class="row"><span>Vigha (વિઘા)</span><span class="val" id="conv_vigha">-</span></div>
         <div class="row"><span>Guntha</span><span class="val" id="conv_guntha">-</span></div>
-        <div class="row"><span>Vigha</span><span class="val" id="conv_vigha">-</span></div>
         <div class="row"><span>Sq Ft</span><span class="val" id="conv_sqft">-</span></div>
         <div class="row"><span>Sq Meter</span><span class="val" id="conv_sqm">-</span></div>
         <div class="row big" id="convRowValue" style="display:none"><span>Total Value</span><span class="val total-value" id="conv_value">-</span></div>
@@ -242,18 +430,14 @@
         <div><label>એકર</label><input type="number" id="d_acre" placeholder="0" step="any"></div>
         <div><label>+ ગુંઠા</label><input type="number" id="d_guntha" placeholder="0" step="any"></div>
       </div>
-      <label>1 એકર = કેટલા ગુંઠા? (સામાન્ય રીતે 40, તમારા વિસ્તાર મુજબ બદલો)</label>
-      <input type="number" id="d_acreRatio" value="40" step="any">
     </div>
 
     <div class="card">
       <h2>ભાવ (કોઈ પણ એક લખો)</h2>
       <label>1 એકરનો ભાવ (₹)</label>
       <input type="number" id="d_acrePrice" placeholder="દા.ત. 4000000" step="any">
-      <label>1 ગુંઠાનો ભાવ (₹)</label>
+      <label>1 ગુંઠાનો ભાવ (₹) — ઓટોમેટિક / જાતે બદલી શકાય</label>
       <input type="number" id="d_gunthaPrice" placeholder="દા.ત. 100000" step="any">
-      <label>કુલ રકમ (₹)</label>
-      <input type="number" id="d_totalInput" placeholder="દા.ત. 1500000" step="any">
 
       <div class="results" id="dealResult" style="display:none">
         <div class="row"><span>કુલ જમીન</span><span class="val" id="d_totalLand">-</span></div>
@@ -291,7 +475,7 @@
   <div class="ph-head">
     <div>
       <div class="ph-title">Wiztech Innovation LLP</div>
-      <div class="ph-sub">Land Deal Calculation</div>
+      <div class="ph-sub">Smart Calculator • Land Deal Calculation</div>
     </div>
     <div class="ph-date" id="printDate"></div>
   </div>
@@ -301,7 +485,49 @@
 
 <script>
 const GUNTHA_TO_SQFT = 1089;
-const ACRE_TO_GUNTHA = 40;
+const UNIT_SETTINGS_KEY = 'smartCalculatorUnitSettings';
+let UNIT_SETTINGS = { acreGuntha: 40, vighaGuntha: 16 };
+
+function loadUnitSettings() {
+  try {
+    const saved = JSON.parse(localStorage.getItem(UNIT_SETTINGS_KEY) || '{}');
+    const acre = Number(saved.acreGuntha);
+    const vigha = Number(saved.vighaGuntha);
+    if (Number.isFinite(acre) && acre > 0) UNIT_SETTINGS.acreGuntha = acre;
+    if (Number.isFinite(vigha) && vigha > 0) UNIT_SETTINGS.vighaGuntha = vigha;
+  } catch (e) {}
+}
+
+function saveUnitSettings() {
+  const acre = parseFloat(document.getElementById('acreGunthaSetting').value);
+  const vigha = parseFloat(document.getElementById('vighaGunthaSetting').value);
+  const status = document.getElementById('unitSettingsStatus');
+  if (!Number.isFinite(acre) || acre <= 0 || !Number.isFinite(vigha) || vigha <= 0) {
+    status.textContent = 'કૃપા કરીને બંને માપ 0 કરતા વધારે દાખલ કરો.';
+    status.style.color = '#b54747';
+    return;
+  }
+  UNIT_SETTINGS.acreGuntha = acre;
+  UNIT_SETTINGS.vighaGuntha = vigha;
+  try {
+    localStorage.setItem(UNIT_SETTINGS_KEY, JSON.stringify(UNIT_SETTINGS));
+    status.textContent = 'સેટિંગ્સ સેવ થઈ ગઈ ✓';
+    status.style.color = '#16866f';
+  } catch (e) {
+    status.textContent = 'આ બ્રાઉઝરમાં સેટિંગ્સ સેવ થઈ શકી નથી.';
+    status.style.color = '#b54747';
+  }
+  runConvert();
+}
+
+function initializeUnitSettings() {
+  loadUnitSettings();
+  document.getElementById('acreGunthaSetting').value = UNIT_SETTINGS.acreGuntha;
+  document.getElementById('vighaGunthaSetting').value = UNIT_SETTINGS.vighaGuntha;
+  document.getElementById('acreGunthaSetting').addEventListener('change', saveUnitSettings);
+  document.getElementById('vighaGunthaSetting').addEventListener('change', saveUnitSettings);
+}
+
 const SQFT_TO_SQM = 0.092903;
 let history = [];
 
@@ -351,13 +577,54 @@ const convInLabel = document.getElementById('convInLabel');
 const unitLabels = { acre: 'Acre', guntha: 'Guntha', sqft: 'Sq Ft', vigha: 'Vigha' };
 const unitPlaceholders = { acre: 'e.g. 2.5', guntha: 'e.g. 15', sqft: 'e.g. 16335', vigha: 'e.g. 3' };
 
+let surveyRowCount = 0;
+
+function addSurveyRow() {
+  surveyRowCount += 1;
+  const row = document.createElement('div');
+  row.className = 'survey-entry';
+  row.innerHTML = `
+    <div class="survey-entry-head">
+      <strong>Survey / ઉતારો ${surveyRowCount}</strong>
+      <button type="button" class="survey-remove" aria-label="Remove survey" ${surveyRowCount === 1 ? 'disabled' : ''} onclick="removeSurveyRow(this)">Remove</button>
+    </div>
+    <input type="text" class="survey-number" placeholder="Survey No. (વૈકલ્પિક)">
+    <div class="two-col survey-measures">
+      <div><label>હે.</label><input type="number" class="survey-hectare" placeholder="હે." min="0" step="any"></div>
+      <div><label>આર</label><input type="number" class="survey-are" placeholder="આર" min="0" step="any"></div>
+      <div><label>ચો.મી.</label><input type="number" class="survey-sqm" placeholder="ચો.મી" min="0" step="any"></div>
+    </div>`;
+  document.getElementById('surveyRows').appendChild(row);
+  row.querySelectorAll('input').forEach(input => input.addEventListener('input', runConvert));
+  refreshSurveyRemoveButtons();
+}
+
+function removeSurveyRow(button) {
+  const rows = document.querySelectorAll('.survey-entry');
+  if (rows.length <= 1) return;
+  button.closest('.survey-entry').remove();
+  refreshSurveyRemoveButtons();
+  runConvert();
+}
+
+function refreshSurveyRemoveButtons() {
+  const rows = [...document.querySelectorAll('.survey-entry')];
+  rows.forEach((row, index) => {
+    const title = row.querySelector('.survey-entry-head strong');
+    title.textContent = `Survey / ઉતારો ${index + 1}`;
+    const remove = row.querySelector('.survey-remove');
+    remove.disabled = rows.length === 1;
+  });
+}
+
+addSurveyRow();
+
 function updateConvUI() {
   const u = convUnit.value;
   const isHaa = (u === 'haa');
   document.getElementById('convInLabel').style.display = isHaa ? 'none' : 'block';
   convIn.style.display = isHaa ? 'none' : 'block';
   document.getElementById('convHaaGroup').style.display = isHaa ? 'block' : 'none';
-  document.getElementById('convVighaGroup').style.display = 'block';
   if (!isHaa) {
     convInLabel.textContent = 'Enter ' + unitLabels[u];
     convIn.placeholder = unitPlaceholders[u];
@@ -373,34 +640,41 @@ function runConvert() {
   let guntha, v;
 
   if (u === 'haa') {
-    const h = parseFloat(document.getElementById('convHectare').value) || 0;
-    const a = parseFloat(document.getElementById('convAre').value) || 0;
-    const sqm = parseFloat(document.getElementById('convSqm').value) || 0;
-    if (h === 0 && a === 0 && sqm === 0) { box.style.display = 'none'; return; }
-    const totalSqm = (h * 10000) + (a * 100) + sqm;
+    const surveyEntries = [...document.querySelectorAll('.survey-entry')];
+    let totalSqm = 0;
+    let hasAnySurveyValue = false;
+    surveyEntries.forEach(entry => {
+      const h = parseFloat(entry.querySelector('.survey-hectare').value) || 0;
+      const a = parseFloat(entry.querySelector('.survey-are').value) || 0;
+      const sqm = parseFloat(entry.querySelector('.survey-sqm').value) || 0;
+      if (h !== 0 || a !== 0 || sqm !== 0) hasAnySurveyValue = true;
+      totalSqm += (h * 10000) + (a * 100) + sqm;
+    });
+    if (!hasAnySurveyValue) { box.style.display = 'none'; return; }
     const totalSqft = totalSqm / SQFT_TO_SQM;
     guntha = totalSqft / GUNTHA_TO_SQFT;
   } else {
     v = parseFloat(convIn.value);
     if (isNaN(v)) { box.style.display = 'none'; return; }
-    if (u === 'acre') guntha = v * ACRE_TO_GUNTHA;
+    if (u === 'acre') guntha = v * UNIT_SETTINGS.acreGuntha;
     else if (u === 'guntha') guntha = v;
     else if (u === 'sqft') guntha = v / GUNTHA_TO_SQFT;
     else if (u === 'vigha') {
-      const ratio = parseFloat(document.getElementById('convVighaRatio').value) || 16;
+      const ratio = UNIT_SETTINGS.vighaGuntha;
       guntha = v * ratio;
     }
   }
 
-  const acre = guntha / ACRE_TO_GUNTHA;
+  const acre = guntha / UNIT_SETTINGS.acreGuntha;
   const sqft = guntha * GUNTHA_TO_SQFT;
   const sqm = sqft * SQFT_TO_SQM;
 
   box.style.display = 'block';
   document.getElementById('conv_acre').textContent = fmt(acre) + ' Acre';
+  // Always calculate Vigha using the configured local Guntha-per-Vigha ratio.
+  const vighaRatio = UNIT_SETTINGS.vighaGuntha;
+  document.getElementById('conv_vigha').textContent = fmt(guntha / vighaRatio) + ' વિઘા';
   document.getElementById('conv_guntha').textContent = fmt(guntha) + ' Guntha';
-  const vighaRatio = parseFloat(document.getElementById('convVighaRatio').value) || 16;
-  document.getElementById('conv_vigha').textContent = fmt(guntha / vighaRatio) + ' Vigha';
   document.getElementById('conv_sqft').textContent = fmt(sqft) + ' sq ft';
   document.getElementById('conv_sqm').textContent = fmt(sqm) + ' sq.m';
 
@@ -424,90 +698,66 @@ convRate.addEventListener('input', runConvert);
 ['convHectare','convAre','convSqm'].forEach(id => {
   document.getElementById(id).addEventListener('input', runConvert);
 });
-document.getElementById('convVighaRatio').addEventListener('input', runConvert);
+initializeUnitSettings();
 updateConvUI();
 
 function clearConvert() {
   convUnit.value = 'guntha';
   convIn.value = '';
   convRate.value = '';
-  document.getElementById('convHectare').value = '';
-  document.getElementById('convAre').value = '';
-  document.getElementById('convSqm').value = '';
-  document.getElementById('convVighaRatio').value = 16;
+  document.getElementById('surveyRows').innerHTML = '';
+  surveyRowCount = 0;
+  addSurveyRow();
   updateConvUI();
 }
 
 // ---- DEAL TAB (linked) ----
 const dAcre = document.getElementById('d_acre');
 const dGuntha = document.getElementById('d_guntha');
-const dAcreRatio = document.getElementById('d_acreRatio');
 const dAcrePrice = document.getElementById('d_acrePrice');
 const dGunthaPrice = document.getElementById('d_gunthaPrice');
-const dTotalInput = document.getElementById('d_totalInput');
 let dealLastEdited = 'acrePrice';
-
-function dealRatio() {
-  return parseFloat(dAcreRatio.value) || 40;
-}
 
 function totalGunthaOfLand() {
   const a = parseFloat(dAcre.value) || 0;
   const g = parseFloat(dGuntha.value) || 0;
-  return (a * dealRatio()) + g;
+  return (a * UNIT_SETTINGS.acreGuntha) + g;
 }
 
 function recomputeDeal() {
-  const ratio = dealRatio();
   const totalG = totalGunthaOfLand();
-  const box = document.getElementById('dealResult');
-  if (totalG === 0) { box.style.display = 'none'; return; }
-
   let acrePrice = parseFloat(dAcrePrice.value);
   let gunthaPrice = parseFloat(dGunthaPrice.value);
-  let totalAmount = parseFloat(dTotalInput.value);
 
-  if (dealLastEdited === 'totalAmount' && !isNaN(totalAmount)) {
-    gunthaPrice = totalAmount / totalG;
-    acrePrice = gunthaPrice * ratio;
-    dAcrePrice.value = acrePrice ? +acrePrice.toFixed(2) : '';
+  if (dealLastEdited === 'acrePrice' && !isNaN(acrePrice)) {
+    gunthaPrice = acrePrice / UNIT_SETTINGS.acreGuntha;
     dGunthaPrice.value = gunthaPrice ? +gunthaPrice.toFixed(2) : '';
-  } else if (dealLastEdited === 'acrePrice' && !isNaN(acrePrice)) {
-    gunthaPrice = acrePrice / ratio;
-    totalAmount = gunthaPrice * totalG;
-    dGunthaPrice.value = gunthaPrice ? +gunthaPrice.toFixed(2) : '';
-    dTotalInput.value = totalAmount ? +totalAmount.toFixed(2) : '';
   } else if (dealLastEdited === 'gunthaPrice' && !isNaN(gunthaPrice)) {
-    acrePrice = gunthaPrice * ratio;
-    totalAmount = gunthaPrice * totalG;
+    acrePrice = gunthaPrice * UNIT_SETTINGS.acreGuntha;
     dAcrePrice.value = acrePrice ? +acrePrice.toFixed(2) : '';
-    dTotalInput.value = totalAmount ? +totalAmount.toFixed(2) : '';
   }
 
-  if (isNaN(acrePrice) && isNaN(gunthaPrice) && isNaN(totalAmount)) { box.style.display = 'none'; return; }
-  if (isNaN(gunthaPrice) && !isNaN(acrePrice)) gunthaPrice = acrePrice / ratio;
-  if (isNaN(gunthaPrice) && !isNaN(totalAmount)) gunthaPrice = totalAmount / totalG;
-  if (isNaN(acrePrice) && !isNaN(gunthaPrice)) acrePrice = gunthaPrice * ratio;
-  if (isNaN(totalAmount) && !isNaN(gunthaPrice)) totalAmount = gunthaPrice * totalG;
+  const box = document.getElementById('dealResult');
+  if ((isNaN(acrePrice) && isNaN(gunthaPrice)) || totalG === 0) { box.style.display = 'none'; return; }
+  if (isNaN(gunthaPrice)) gunthaPrice = acrePrice / UNIT_SETTINGS.acreGuntha;
+  if (isNaN(acrePrice)) acrePrice = gunthaPrice * UNIT_SETTINGS.acreGuntha;
 
+  const total = totalG * gunthaPrice;
   box.style.display = 'block';
-  document.getElementById('d_totalLand').textContent = fmt(totalG/ratio) + ' એકર (' + fmt(totalG) + ' ગુંઠા)';
+  document.getElementById('d_totalLand').textContent = fmt(totalG/UNIT_SETTINGS.acreGuntha) + ' એકર (' + fmt(totalG) + ' ગુંઠા)';
   document.getElementById('d_showAcrePrice').textContent = fmtMoney(acrePrice);
   document.getElementById('d_showGunthaPrice').textContent = fmtMoney(gunthaPrice.toFixed(2));
-  document.getElementById('d_total').textContent = fmtMoney(totalAmount);
-  document.getElementById('d_totalWords').textContent = numberToGujaratiWords(totalAmount);
+  document.getElementById('d_total').textContent = fmtMoney(total);
+  document.getElementById('d_totalWords').textContent = numberToGujaratiWords(total);
 }
 dAcre.addEventListener('input', recomputeDeal);
 dGuntha.addEventListener('input', recomputeDeal);
-dAcreRatio.addEventListener('input', recomputeDeal);
 dAcrePrice.addEventListener('input', () => { dealLastEdited = 'acrePrice'; recomputeDeal(); });
 dGunthaPrice.addEventListener('input', () => { dealLastEdited = 'gunthaPrice'; recomputeDeal(); });
-dTotalInput.addEventListener('input', () => { dealLastEdited = 'totalAmount'; recomputeDeal(); });
 
 function clearDeal() {
   dAcre.value = ''; dGuntha.value = '';
-  dAcreRatio.value = 40;
-  dAcrePrice.value = ''; dGunthaPrice.value = ''; dTotalInput.value = '';
+  dAcrePrice.value = ''; dGunthaPrice.value = '';
   dealLastEdited = 'acrePrice';
   document.getElementById('dealResult').style.display = 'none';
   document.getElementById('banakhatCard').style.display = 'none';
@@ -519,7 +769,7 @@ function saveDealHistory() {
   if (totalG === 0 || totalTxt === '-') { alert('પહેલા જમીન અને ભાવ ભરો'); return; }
   const now = new Date();
   history.unshift({
-    line1: fmt(totalG/ACRE_TO_GUNTHA) + ' એકર જમીન',
+    line1: fmt(totalG/UNIT_SETTINGS.acreGuntha) + ' એકર જમીન',
     line2: 'ગુંઠા ભાવ: ' + document.getElementById('d_showGunthaPrice').textContent,
     total: totalTxt,
     time: now.toLocaleDateString('en-IN') + ' ' + now.toLocaleTimeString('en-IN', {hour:'2-digit', minute:'2-digit'})
