@@ -439,19 +439,6 @@
     .survey-measures input { width: 100%; }
   }
 
-
-  .doc-tools{display:flex;align-items:center;gap:7px;flex-wrap:wrap;margin:10px 0}
-  .doc-tools .btn{width:auto;flex:1 1 auto;margin:0;padding:10px 12px}
-  .doc-stage{position:relative;overflow:auto;-webkit-overflow-scrolling:touch;background:#071321;border:1px solid #426481;border-radius:10px;min-height:220px;max-height:75vh;text-align:left;touch-action:pan-x pan-y pinch-zoom;overscroll-behavior:contain}
-  #localDocCanvas{display:block;margin:0;max-width:none;height:auto}
-  #localMarkCanvas{position:absolute;left:0;top:0;transform:none;touch-action:none;-webkit-user-select:none;user-select:none;-webkit-touch-callout:none;cursor:crosshair;z-index:2}
-  .doc-list-item{background:#0b1e30;border:1px solid #2b4b66;border-radius:11px;padding:12px;margin-top:9px}
-  .doc-list-item strong{display:block;color:#f3f8ff;font-size:16px}
-  .doc-list-item small{display:block;color:#afc2d5;margin:5px 0}
-  .doc-actions{display:flex;gap:7px;flex-wrap:wrap}
-  .doc-actions button{width:auto;flex:1;margin:0;padding:9px}
-  input[type=file]{font-size:14px}
-
 </style>
 </head>
 <body>
@@ -468,7 +455,6 @@
   <div class="tabs">
     <button type="button" class="tab active" data-tab="convert">Converter</button>
     <button type="button" class="tab" data-tab="settings">Settings</button>
-    <button type="button" class="tab" data-tab="documents">ઉતારા / નકશા</button>
   </div>
 
   <!-- CONVERT TAB -->
@@ -543,44 +529,6 @@
   </div>
 </div>
 
-
-  <div id="tab-documents" style="display:none">
-    <div class="card">
-      <h2>ઉતારા / નકશા</h2>
-      <label>Search / ફાઇલ શોધો</label>
-      <input type="search" id="localFileSearch" placeholder="ફાઇલનું નામ લખો અથવા નીચે Browse કરો..." oninput="filterLocalFileName()">
-      <label>Attach File / ફાઇલ પસંદ કરો</label>
-      <input type="file" id="localDocFile" accept="application/pdf,image/*" style="width:100%;margin-bottom:12px;color:#eaf4ff">
-      <div class="note" id="localFileName">હજુ કોઈ ફાઇલ પસંદ નથી.</div>
-      <button class="btn" type="button" onclick="attachLocalDocument()">📂 Attach & Open</button>
-    </div>
-    <div class="card" id="localViewerCard" style="display:none">
-      <div class="card-head"><h2 id="localViewerTitle">દસ્તાવેજ</h2><button class="clear-btn" onclick="closeLocalDocument()">બંધ કરો</button></div>
-      <div class="doc-tools">
-        <button class="btn outline" onclick="localZoom(1.25)">＋ Zoom</button>
-        <button class="btn outline" onclick="localZoom(.8)">－ Zoom</button>
-        <button class="btn outline" onclick="localZoom(1,true)">Fit</button>
-        <button class="btn outline" onclick="localPage(-1)">◀ Page</button>
-        <span id="localPageInfo" class="settings-status">1 / 1</span>
-        <button class="btn outline" onclick="localPage(1)">Page ▶</button>
-      </div>
-      <div class="doc-tools">
-        <button class="btn" id="localNavMode" type="button" onclick="setLocalMode('navigate')">✋ Zoom / Move</button>
-        <button class="btn outline" id="localDrawMode" type="button" onclick="setLocalMode('draw')">✏️ Marking Mode</button>
-        <label style="margin:0">રંગ</label><input type="color" id="localMarkColor" value="#ff2020" style="width:48px;height:40px;padding:2px;margin:0">
-        <label style="margin:0">માર્કિંગ</label>
-        <select id="localMarkTool" style="width:auto;min-width:115px;margin:0">
-          <option value="circle">ગોળ સર્કલ</option><option value="line">લાઇન</option><option value="free">ફ્રી ડ્રો</option>
-        </select>
-        <button class="btn outline" onclick="localUndo()">↶ Undo</button>
-      </div>
-      <div class="note" id="localGestureHelp" style="text-align:left">Zoom / Move મોડ: બે આંગળીથી pinch કરીને zoom કરો અને એક આંગળીથી પાનું ખસેડો. માર્કિંગ કરવા Marking Mode પસંદ કરો.</div>
-      <div id="localDocStage" class="doc-stage"><canvas id="localDocCanvas"></canvas><canvas id="localMarkCanvas"></canvas></div>
-      <button class="btn" type="button" onclick="saveMarkedLocalCopy()">💾 Marked Copy Save</button>
-      <button class="btn outline" type="button" onclick="saveA4Jpg()">🖼️ A4 Size JPG Save</button>
-      <div class="note" id="localSaveStatus">મૂળ ફાઇલ તમારા ડિવાઇસમાં જ રહેશે. માર્કિંગ નવી કોપીમાં સેવ થશે.</div>
-    </div>
-  </div>
 <!-- PRINT-ONLY AREA -->
 <div id="printArea">
   <div class="ph-head">
@@ -594,58 +542,6 @@
   <div class="ph-verdict" id="printVerdict" style="display:none"></div>
 </div>
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js">
-async function saveA4Jpg(){
- if(!localFile){alert('પહેલા નકશો અથવા ઉતારો Attach કરો.');return;}
- const status=document.getElementById('localSaveStatus');status.textContent='A4 JPG તૈયાર થઈ રહી છે...';
- try{
-  // A4 portrait at 200 DPI (1654 x 2339) keeps mobile memory usage reasonable.
-  const W=1654,H=2339,out=document.createElement('canvas');out.width=W;out.height=H;
-  const ctx=out.getContext('2d');ctx.fillStyle='#ffffff';ctx.fillRect(0,0,W,H);
-  const margin=70,scale=Math.min((W-2*margin)/localDocCanvas.width,(H-2*margin)/localDocCanvas.height);
-  const dw=localDocCanvas.width*scale,dh=localDocCanvas.height*scale,dx=(W-dw)/2,dy=(H-dh)/2;
-  ctx.drawImage(localDocCanvas,dx,dy,dw,dh);
-  ctx.drawImage(localMarkCanvas,dx,dy,dw,dh);
-  const blob=await new Promise((resolve,reject)=>out.toBlob(b=>b?resolve(b):reject(new Error('JPG બનાવવામાં ભૂલ')), 'image/jpeg',.94));
-  const name=(localFile.name.replace(/\.[^.]+$/,'')+'_A4_marked.jpg');
-  const file=new File([blob],name,{type:'image/jpeg'});
-  if(navigator.canShare&&navigator.canShare({files:[file]})){
-   try{await navigator.share({files:[file],title:'A4 Marked Map'});status.textContent='A4 JPG Share Sheet માં ખુલ્યું. Save Image / Save to Files પસંદ કરો.';return;}
-   catch(e){if(e.name==='AbortError'){status.textContent='Share રદ થયું.';return;}}
-  }
-  const url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download=name;document.body.appendChild(a);a.click();a.remove();
-  setTimeout(()=>URL.revokeObjectURL(url),30000);
-  status.textContent='A4 JPG તૈયાર છે. iPhone માં ખોલીને Share → Save Image કરો અથવા Files માં સેવ કરો.';
- }catch(e){console.error(e);status.textContent='A4 JPG સેવ ન થઈ: '+e.message;alert('A4 JPG બનાવવામાં ભૂલ: '+e.message);}
-}
-
-</script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf-lib/1.17.1/pdf-lib.min.js">
-async function saveA4Jpg(){
- if(!localFile){alert('પહેલા નકશો અથવા ઉતારો Attach કરો.');return;}
- const status=document.getElementById('localSaveStatus');status.textContent='A4 JPG તૈયાર થઈ રહી છે...';
- try{
-  // A4 portrait at 200 DPI (1654 x 2339) keeps mobile memory usage reasonable.
-  const W=1654,H=2339,out=document.createElement('canvas');out.width=W;out.height=H;
-  const ctx=out.getContext('2d');ctx.fillStyle='#ffffff';ctx.fillRect(0,0,W,H);
-  const margin=70,scale=Math.min((W-2*margin)/localDocCanvas.width,(H-2*margin)/localDocCanvas.height);
-  const dw=localDocCanvas.width*scale,dh=localDocCanvas.height*scale,dx=(W-dw)/2,dy=(H-dh)/2;
-  ctx.drawImage(localDocCanvas,dx,dy,dw,dh);
-  ctx.drawImage(localMarkCanvas,dx,dy,dw,dh);
-  const blob=await new Promise((resolve,reject)=>out.toBlob(b=>b?resolve(b):reject(new Error('JPG બનાવવામાં ભૂલ')), 'image/jpeg',.94));
-  const name=(localFile.name.replace(/\.[^.]+$/,'')+'_A4_marked.jpg');
-  const file=new File([blob],name,{type:'image/jpeg'});
-  if(navigator.canShare&&navigator.canShare({files:[file]})){
-   try{await navigator.share({files:[file],title:'A4 Marked Map'});status.textContent='A4 JPG Share Sheet માં ખુલ્યું. Save Image / Save to Files પસંદ કરો.';return;}
-   catch(e){if(e.name==='AbortError'){status.textContent='Share રદ થયું.';return;}}
-  }
-  const url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download=name;document.body.appendChild(a);a.click();a.remove();
-  setTimeout(()=>URL.revokeObjectURL(url),30000);
-  status.textContent='A4 JPG તૈયાર છે. iPhone માં ખોલીને Share → Save Image કરો અથવા Files માં સેવ કરો.';
- }catch(e){console.error(e);status.textContent='A4 JPG સેવ ન થઈ: '+e.message;alert('A4 JPG બનાવવામાં ભૂલ: '+e.message);}
-}
-
-</script>
 <script>
 const GUNTHA_TO_SQFT = 1089;
 const UNIT_SETTINGS_KEY = 'smartCalculatorUnitSettings';
@@ -722,7 +618,7 @@ document.querySelectorAll('.tab').forEach(t => {
   t.addEventListener('click', () => {
     document.querySelectorAll('.tab').forEach(x => x.classList.remove('active'));
     t.classList.add('active');
-    ['convert','settings','documents'].forEach(name => {
+    ['convert','settings'].forEach(name => {
       document.getElementById('tab-' + name).style.display = (name === t.dataset.tab) ? 'block' : 'none';
     });
     document.body.classList.remove('theme-deal','theme-history');
@@ -860,7 +756,9 @@ function runConvert() {
 convUnit.addEventListener('change', updateConvUI);
 convIn.addEventListener('input', runConvert);
 convRate.addEventListener('input', runConvert);
-
+['convHectare','convAre','convSqm'].forEach(id => {
+  document.getElementById(id).addEventListener('input', runConvert);
+});
 initializeUnitSettings();
 updateConvUI();
 
@@ -872,6 +770,156 @@ function clearConvert() {
   surveyRowCount = 0;
   addSurveyRow();
   updateConvUI();
+}
+
+// ---- DEAL TAB (linked) ----
+const dAcre = document.getElementById('d_acre');
+const dGuntha = document.getElementById('d_guntha');
+const dAcrePrice = document.getElementById('d_acrePrice');
+const dGunthaPrice = document.getElementById('d_gunthaPrice');
+let dealLastEdited = 'acrePrice';
+
+function totalGunthaOfLand() {
+  const a = parseFloat(dAcre.value) || 0;
+  const g = parseFloat(dGuntha.value) || 0;
+  return (a * UNIT_SETTINGS.acreGuntha) + g;
+}
+
+function recomputeDeal() {
+  const totalG = totalGunthaOfLand();
+  let acrePrice = parseFloat(dAcrePrice.value);
+  let gunthaPrice = parseFloat(dGunthaPrice.value);
+
+  if (dealLastEdited === 'acrePrice' && !isNaN(acrePrice)) {
+    gunthaPrice = acrePrice / UNIT_SETTINGS.acreGuntha;
+    dGunthaPrice.value = gunthaPrice ? +gunthaPrice.toFixed(2) : '';
+  } else if (dealLastEdited === 'gunthaPrice' && !isNaN(gunthaPrice)) {
+    acrePrice = gunthaPrice * UNIT_SETTINGS.acreGuntha;
+    dAcrePrice.value = acrePrice ? +acrePrice.toFixed(2) : '';
+  }
+
+  const box = document.getElementById('dealResult');
+  if ((isNaN(acrePrice) && isNaN(gunthaPrice)) || totalG === 0) { box.style.display = 'none'; return; }
+  if (isNaN(gunthaPrice)) gunthaPrice = acrePrice / UNIT_SETTINGS.acreGuntha;
+  if (isNaN(acrePrice)) acrePrice = gunthaPrice * UNIT_SETTINGS.acreGuntha;
+
+  const total = totalG * gunthaPrice;
+  box.style.display = 'block';
+  document.getElementById('d_totalLand').textContent = fmt(totalG/UNIT_SETTINGS.acreGuntha) + ' એકર (' + fmt(totalG) + ' ગુંઠા)';
+  document.getElementById('d_showAcrePrice').textContent = fmtMoney(acrePrice);
+  document.getElementById('d_showGunthaPrice').textContent = fmtMoney(gunthaPrice.toFixed(2));
+  document.getElementById('d_total').textContent = fmtMoney(total);
+  document.getElementById('d_totalWords').textContent = numberToGujaratiWords(total);
+}
+dAcre.addEventListener('input', recomputeDeal);
+dGuntha.addEventListener('input', recomputeDeal);
+dAcrePrice.addEventListener('input', () => { dealLastEdited = 'acrePrice'; recomputeDeal(); });
+dGunthaPrice.addEventListener('input', () => { dealLastEdited = 'gunthaPrice'; recomputeDeal(); });
+
+function clearDeal() {
+  dAcre.value = ''; dGuntha.value = '';
+  dAcrePrice.value = ''; dGunthaPrice.value = '';
+  dealLastEdited = 'acrePrice';
+  document.getElementById('dealResult').style.display = 'none';
+  document.getElementById('banakhatCard').style.display = 'none';
+}
+
+function saveDealHistory() {
+  const totalG = totalGunthaOfLand();
+  const totalTxt = document.getElementById('d_total').textContent;
+  if (totalG === 0 || totalTxt === '-') { alert('પહેલા જમીન અને ભાવ ભરો'); return; }
+  const now = new Date();
+  history.unshift({
+    line1: fmt(totalG/UNIT_SETTINGS.acreGuntha) + ' એકર જમીન',
+    line2: 'ગુંઠા ભાવ: ' + document.getElementById('d_showGunthaPrice').textContent,
+    total: totalTxt,
+    time: now.toLocaleDateString('en-IN') + ' ' + now.toLocaleTimeString('en-IN', {hour:'2-digit', minute:'2-digit'})
+  });
+  renderHistory();
+  alert('સેવ થયું ✓');
+}
+
+function printDeal() {
+  const totalTxt = document.getElementById('d_total').textContent;
+  if (totalTxt === '-') { alert('પહેલા જમીન અને ભાવ ભરો'); return; }
+  document.getElementById('printDate').textContent = new Date().toLocaleDateString('en-IN');
+  let rows = `
+    <tr><td class="k">Total Land</td><td class="v">${document.getElementById('d_totalLand').textContent}</td></tr>
+    <tr><td class="k">Price per Acre</td><td class="v">${document.getElementById('d_showAcrePrice').textContent}</td></tr>
+    <tr><td class="k">Price per Guntha</td><td class="v">${document.getElementById('d_showGunthaPrice').textContent}</td></tr>
+  `;
+  document.getElementById('printTable').innerHTML = rows;
+  document.getElementById('printVerdict').style.display = 'block';
+  document.getElementById('printVerdict').innerHTML = 'Total Amount Payable: ' + totalTxt + '<br><span style="font-size:15px;font-weight:400;">(' + document.getElementById('d_totalWords').textContent + ')</span>';
+  window.print();
+}
+
+function shareDealWhatsapp() {
+  const totalTxt = document.getElementById('d_total').textContent;
+  if (totalTxt === '-') { alert('પહેલા જમીન અને ભાવ ભરો'); return; }
+  let msg = '*જમીન સોદાની વિગત*%0A%0A';
+  msg += 'જમીન: ' + document.getElementById('d_totalLand').textContent + '%0A';
+  msg += 'એકરનો ભાવ: ' + document.getElementById('d_showAcrePrice').textContent + '%0A';
+  msg += '*કુલ રકમ: ' + totalTxt + '*%0A';
+  msg += '(' + document.getElementById('d_totalWords').textContent + ')%0A%0A';
+  msg += '- Wiztech Innovation LLP';
+  const url = `https://wa.me/?text=${msg}`;
+  window.open(url, '_blank');
+}
+
+function toggleBanakhat() {
+  const card = document.getElementById('banakhatCard');
+  if (card.style.display === 'block') { card.style.display = 'none'; return; }
+  const totalTxt = document.getElementById('d_total').textContent;
+  if (totalTxt === '-') { alert('પહેલા જમીન અને ભાવ ભરો'); return; }
+  const seller = '_______________';
+  const buyer = '_______________';
+  const address = '_______________';
+  const land = document.getElementById('d_totalLand').textContent;
+  const words = document.getElementById('d_totalWords').textContent;
+  const today = new Date().toLocaleDateString('en-IN');
+  const draft = `બાનાખત (સેલ એગ્રીમેન્ટ ડ્રાફ્ટ)
+
+તારીખ: ${today}
+
+આ બાનાખત નીચે મુજબની શરતોએ કરવામાં આવે છે:
+
+વેચનાર: ${seller}
+ખરીદનાર: ${buyer}
+
+જમીનની વિગત:
+સરનામું / લોકેશન: ${address}
+કુલ ક્ષેત્રફળ: ${land}
+
+સોદાની કુલ રકમ: ${totalTxt}
+(અક્ષરે: ${words})
+
+શરતો:
+1. ઉપર જણાવેલ જમીન વેચનાર દ્વારા ખરીદનારને વેચવામાં આવે છે.
+2. ઉપર જણાવેલ રકમ બંને પક્ષોની સંમતિથી નક્કી કરવામાં આવેલ છે.
+3. રજિસ્ટ્રેશન સમયે બાકી રકમની ચુકવણી કરવામાં આવશે.
+4. જમીન પર કોઈ બોજો/વિવાદ નથી તેની જવાબદારી વેચનારની રહેશે.
+
+વેચનારની સહી: _______________          ખરીદનારની સહી: _______________
+
+સાક્ષી 1: _______________          સાક્ષી 2: _______________
+
+(આ એક સાદો ડ્રાફ્ટ છે. અંતિમ રજિસ્ટ્રેશન પહેલા વકીલ પાસે ચકાસાવો.)`;
+  document.getElementById('banakhatText').value = draft;
+  card.style.display = 'block';
+}
+
+function copyBanakhat() {
+  const text = document.getElementById('banakhatText').value;
+  navigator.clipboard.writeText(text).then(() => alert('Copy થયું ✓')).catch(() => alert('Copy ના થયું, જાતે select કરી copy કરો'));
+}
+
+function printBanakhat() {
+  document.getElementById('printDate').textContent = new Date().toLocaleDateString('en-IN');
+  const text = document.getElementById('banakhatText').value.replace(/\n/g, '<br>');
+  document.getElementById('printTable').innerHTML = `<tr><td colspan="2" style="white-space:normal; line-height:1.8;">${text}</td></tr>`;
+  document.getElementById('printVerdict').style.display = 'none';
+  window.print();
 }
 
 // ---- HISTORY ----
@@ -889,206 +937,6 @@ function renderHistory() {
     </div>
   `).join('');
 }
-
-// ---- LOCAL FILE OPEN + MARK + EXPORT (NO SERVER / NO APP FILE STORAGE) ----
-let localFile=null,localPdf=null,localPageNo=1,localZoomFactor=1,localMarks=[],localDraw=null,localObjectUrl=null,localMode='navigate',localPointers=new Map(),localPinchStart=0,localPinchZoom=1;
-const localDocCanvas=document.getElementById('localDocCanvas');
-const localMarkCanvas=document.getElementById('localMarkCanvas');
-function filterLocalFileName(){
- const q=document.getElementById('localFileSearch').value.trim();
- document.getElementById('localFileName').textContent=q?'હવે Browse દબાવીને ડિવાઇસના ફાઇલ picker માં આ નામ શોધો: '+q:'ફાઇલ તમારા ડિવાઇસના ફોલ્ડરમાંથી પસંદ કરો.';
-}
-async function attachLocalDocument(){
- const f=document.getElementById('localDocFile').files[0];
- if(!f){alert('પહેલા Browse કરીને PDF અથવા ફોટો પસંદ કરો.');return;}
- if(!(f.type==='application/pdf'||f.type.startsWith('image/'))){alert('માત્ર PDF અથવા image પસંદ કરો.');return;}
- localFile=f;localPdf=null;localPageNo=1;localZoomFactor=1;localMarks=[];
- if(localObjectUrl)URL.revokeObjectURL(localObjectUrl);
- localObjectUrl=URL.createObjectURL(f);
- document.getElementById('localViewerCard').style.display='block';
- document.getElementById('localViewerTitle').textContent=f.name;
- document.getElementById('localSaveStatus').textContent='મૂળ ફાઇલમાં કોઈ ફેરફાર નહીં થાય. Marked Copy અલગથી સેવ થશે.';
- try{
-  if(f.type==='application/pdf'){
-   if(!window.pdfjsLib)throw new Error('PDF Viewer લોડ નથી થયું. ઇન્ટરનેટ ચાલુ રાખો.');
-   pdfjsLib.GlobalWorkerOptions.workerSrc='https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
-   localPdf=await pdfjsLib.getDocument({data:await f.arrayBuffer()}).promise;
-   await renderLocalPdfPage();
-  }else await renderLocalImage();
-  document.getElementById('localViewerCard').scrollIntoView({behavior:'smooth',block:'start'});
- }catch(e){alert('ફાઇલ ખોલવામાં ભૂલ: '+e.message);}
-}
-function sizeLocalCanvases(w,h){
- [localDocCanvas,localMarkCanvas].forEach(c=>{c.width=w;c.height=h;c.style.width=w+'px';c.style.height=h+'px';});
-}
-async function renderLocalPdfPage(){
- const page=await localPdf.getPage(localPageNo),base=page.getViewport({scale:1});
- const scale=Math.min(1.5,(window.innerWidth-42)/base.width)*localZoomFactor,viewport=page.getViewport({scale});
- sizeLocalCanvases(Math.round(viewport.width),Math.round(viewport.height));
- await page.render({canvasContext:localDocCanvas.getContext('2d'),viewport}).promise;
- document.getElementById('localPageInfo').textContent=localPageNo+' / '+localPdf.numPages;
- drawLocalMarks();
-}
-function renderLocalImage(){
- return new Promise((resolve,reject)=>{
-  const img=new Image();img.onload=()=>{
-   const scale=Math.min(1,(window.innerWidth-42)/img.width)*localZoomFactor;
-   sizeLocalCanvases(Math.round(img.width*scale),Math.round(img.height*scale));
-   localDocCanvas.getContext('2d').drawImage(img,0,0,localDocCanvas.width,localDocCanvas.height);
-   document.getElementById('localPageInfo').textContent='Image';drawLocalMarks();resolve();
-  };img.onerror=()=>reject(new Error('Image વાંચી શકાતી નથી'));img.src=localObjectUrl;
- });
-}
-function drawLocalMarks(){
- const ctx=localMarkCanvas.getContext('2d');ctx.clearRect(0,0,localMarkCanvas.width,localMarkCanvas.height);
- localMarks.filter(m=>m.page===localPageNo).forEach(m=>{
-  ctx.strokeStyle=m.color;ctx.lineWidth=m.width||4;ctx.lineCap='round';ctx.beginPath();
-  if(m.tool==='circle')ctx.ellipse(m.x,m.y,m.w,m.h,0,0,Math.PI*2);
-  else{ctx.moveTo(m.points[0][0],m.points[0][1]);m.points.slice(1).forEach(p=>ctx.lineTo(p[0],p[1]));}
-  ctx.stroke();
- });
-}
-function localPoint(e){
- const r=localMarkCanvas.getBoundingClientRect();
- return [(e.clientX-r.left)*localMarkCanvas.width/r.width,(e.clientY-r.top)*localMarkCanvas.height/r.height];
-}
-function localBegin(x,y){
- localDraw={tool:document.getElementById('localMarkTool').value,color:document.getElementById('localMarkColor').value,
- x,y,points:[[x,y]],page:localPageNo,wCanvas:localMarkCanvas.width,hCanvas:localMarkCanvas.height};
-}
-function localMove(x,y){
- if(!localDraw)return;localDraw.points.push([x,y]);drawLocalMarks();
- const c=localMarkCanvas.getContext('2d');c.strokeStyle=localDraw.color;c.lineWidth=4;c.lineCap='round';c.beginPath();
- if(localDraw.tool==='circle')c.ellipse(localDraw.x,localDraw.y,Math.abs(x-localDraw.x),Math.abs(y-localDraw.y),0,0,Math.PI*2);
- else{c.moveTo(...localDraw.points[0]);localDraw.points.slice(1).forEach(p=>c.lineTo(...p));}c.stroke();
-}
-function localEnd(x,y){
- if(!localDraw)return;
- if(localDraw.tool==='circle'){localDraw.w=Math.max(2,Math.abs(x-localDraw.x));localDraw.h=Math.max(2,Math.abs(y-localDraw.y));}
- localMarks.push(localDraw);localDraw=null;drawLocalMarks();
-}
-function setLocalMode(mode){
- localMode=mode;localDraw=null;
- document.getElementById('localNavMode').className=mode==='navigate'?'btn':'btn outline';
- document.getElementById('localDrawMode').className=mode==='draw'?'btn':'btn outline';
- document.getElementById('localGestureHelp').textContent=mode==='navigate'
-  ?'Zoom / Move મોડ: બે આંગળીથી pinch કરીને zoom કરો અને એક આંગળીથી પાનું ખસેડો. માર્કિંગ કરવા Marking Mode પસંદ કરો.'
-  :'Marking Mode: એક આંગળી અથવા માઉસથી સર્કલ / લાઇન દોરો. Pinch zoom માટે Zoom / Move મોડ પસંદ કરો.';
-}
-function pointerDistance(){
- const pts=[...localPointers.values()];if(pts.length<2)return 0;
- return Math.hypot(pts[0].x-pts[1].x,pts[0].y-pts[1].y);
-}
-if(window.PointerEvent){
- localMarkCanvas.addEventListener('pointerdown',e=>{
-  e.preventDefault();try{localMarkCanvas.setPointerCapture(e.pointerId)}catch(_){}
-  localPointers.set(e.pointerId,{x:e.clientX,y:e.clientY});
-  if(localMode==='navigate'&&localPointers.size===2){localPinchStart=pointerDistance();localPinchZoom=localZoomFactor;}
-  if(localMode==='draw'&&localPointers.size===1){const pt=localPoint(e);localBegin(...pt);}
- });
- localMarkCanvas.addEventListener('pointermove',e=>{
-  if(!localPointers.has(e.pointerId))return;
-  localPointers.set(e.pointerId,{x:e.clientX,y:e.clientY});
-  if(localMode==='navigate'&&localPointers.size>=2){
-   const d=pointerDistance();if(localPinchStart>0&&d>0){
-    const next=Math.max(.5,Math.min(8,localPinchZoom*d/localPinchStart));
-    if(Math.abs(next-localZoomFactor)>.035){localZoomFactor=next;(localPdf?renderLocalPdfPage():renderLocalImage()).catch(()=>{});}
-   }
-  }else if(localMode==='draw'&&localDraw){e.preventDefault();localMove(...localPoint(e));}
- });
- const endPointer=e=>{localPointers.delete(e.pointerId);if(localMode==='draw'&&localDraw){const pt=localPoint(e);localEnd(...pt);}if(localPointers.size<2)localPinchStart=0;};
- localMarkCanvas.addEventListener('pointerup',endPointer);
- localMarkCanvas.addEventListener('pointercancel',endPointer);
-}else{
- // Touch fallback: distinguish navigation/pinch from marking mode
- localMarkCanvas.addEventListener('touchstart',e=>{
-  if(localMode==='draw'&&e.touches.length===1){e.preventDefault();const t=e.touches[0],r=localMarkCanvas.getBoundingClientRect();localBegin((t.clientX-r.left)*localMarkCanvas.width/r.width,(t.clientY-r.top)*localMarkCanvas.height/r.height);}
-  else if(localMode==='navigate'&&e.touches.length===2){e.preventDefault();const [a,b]=e.touches;localPinchStart=Math.hypot(a.clientX-b.clientX,a.clientY-b.clientY);localPinchZoom=localZoomFactor;}
- },{passive:false});
- localMarkCanvas.addEventListener('touchmove',e=>{
-  if(localMode==='draw'&&localDraw&&e.touches.length===1){e.preventDefault();const t=e.touches[0],r=localMarkCanvas.getBoundingClientRect();localMove((t.clientX-r.left)*localMarkCanvas.width/r.width,(t.clientY-r.top)*localMarkCanvas.height/r.height);}
-  else if(localMode==='navigate'&&e.touches.length===2){e.preventDefault();const [a,b]=e.touches,d=Math.hypot(a.clientX-b.clientX,a.clientY-b.clientY);if(localPinchStart){localZoomFactor=Math.max(.5,Math.min(8,localPinchZoom*d/localPinchStart));(localPdf?renderLocalPdfPage():renderLocalImage()).catch(()=>{});}}
- },{passive:false});
- localMarkCanvas.addEventListener('touchend',e=>{if(localDraw&&localMode==='draw'){const t=e.changedTouches[0],r=localMarkCanvas.getBoundingClientRect();localEnd((t.clientX-r.left)*localMarkCanvas.width/r.width,(t.clientY-r.top)*localMarkCanvas.height/r.height);}if(e.touches.length<2)localPinchStart=0;},{passive:false});
-}
-setLocalMode('navigate');
-function localUndo(){if(localMarks.length){localMarks.pop();drawLocalMarks();}}
-function localPage(delta){if(!localPdf)return;localPageNo=Math.max(1,Math.min(localPdf.numPages,localPageNo+delta));renderLocalPdfPage().catch(e=>alert(e.message));}
-function localZoom(f,fit=false){if(!localFile)return;localZoomFactor=fit?1:Math.max(.5,Math.min(4,localZoomFactor*f));(localPdf?renderLocalPdfPage():renderLocalImage()).catch(e=>alert(e.message));}
-function closeLocalDocument(){
- document.getElementById('localViewerCard').style.display='none';localFile=null;localPdf=null;localMarks=[];
- if(localObjectUrl){URL.revokeObjectURL(localObjectUrl);localObjectUrl=null;}
-}
-function hexRgb(hex){return {r:parseInt(hex.slice(1,3),16)/255,g:parseInt(hex.slice(3,5),16)/255,b:parseInt(hex.slice(5,7),16)/255};}
-async function saveMarkedLocalCopy(){
- if(!localFile)return;
- const status=document.getElementById('localSaveStatus');status.textContent='Marked Copy તૈયાર થઈ રહી છે...';
- try{
-  let blob,filename=localFile.name.replace(/\.[^.]+$/,'')+'_marked';
-  if(localFile.type==='application/pdf'){
-   if(!window.PDFLib)throw new Error('PDF Save Library લોડ નથી થયું. ઇન્ટરનેટ ચાલુ રાખો.');
-   const {PDFDocument,rgb}=PDFLib,bytes=await localFile.arrayBuffer(),pdf=await PDFDocument.load(bytes),pages=pdf.getPages();
-   localMarks.forEach(m=>{
-    const pg=pages[m.page-1];if(!pg)return;
-    const pw=pg.getWidth(),ph=pg.getHeight(),sx=pw/(m.wCanvas||localMarkCanvas.width),sy=ph/(m.hCanvas||localMarkCanvas.height);
-    const col=hexRgb(m.color),stroke=rgb(col.r,col.g,col.b),thick=Math.max(1,3*sx);
-    const py=y=>ph-y*sy;
-    if(m.tool==='circle'){
-     const rx=m.w*sx,ry=m.h*sy,cx=m.x*sx,cy=py(m.y);
-     pg.drawEllipse({x:cx-rx,y:cy-ry,xScale:rx,yScale:ry,borderColor:stroke,borderWidth:thick,opacity:1});
-    }else{
-     for(let i=1;i<m.points.length;i++){
-      const p1=m.points[i-1],p2=m.points[i];
-      pg.drawLine({start:{x:p1[0]*sx,y:py(p1[1])},end:{x:p2[0]*sx,y:py(p2[1])},thickness:thick,color:stroke});
-     }
-    }
-   });
-   blob=new Blob([await pdf.save()],{type:'application/pdf'});filename+='.pdf';
-  }else{
-   const c=document.createElement('canvas');c.width=localDocCanvas.width;c.height=localDocCanvas.height;
-   const ctx=c.getContext('2d');ctx.drawImage(localDocCanvas,0,0);
-   const overlay=document.createElement('canvas');overlay.width=localMarkCanvas.width;overlay.height=localMarkCanvas.height;
-   const ox=overlay.getContext('2d');
-   localMarks.filter(m=>m.page===1).forEach(m=>{ox.strokeStyle=m.color;ox.lineWidth=4;ox.lineCap='round';ox.beginPath();if(m.tool==='circle')ox.ellipse(m.x,m.y,m.w,m.h,0,0,Math.PI*2);else{ox.moveTo(...m.points[0]);m.points.slice(1).forEach(p=>ox.lineTo(...p));}ox.stroke();});
-   ctx.drawImage(overlay,0,0);blob=await new Promise(resolve=>c.toBlob(resolve,'image/png'));filename+='.png';
-  }
-  const outFile=new File([blob],filename,{type:blob.type});
-  // Save into the same folder when the browser supports File System Access API.
-  if(window.showSaveFilePicker){
-   try{const handle=await window.showSaveFilePicker({suggestedName:outFile.name,types:[{description:blob.type==='application/pdf'?'PDF file':'PNG image',accept:{[blob.type]:[blob.type==='application/pdf'?'.pdf':'.png']}}]});
-    const writable=await handle.createWritable();await writable.write(blob);await writable.close();
-    status.textContent='Marked Copy પસંદ કરેલા લોકેશનમાં સેવ થઈ ગઈ ✓';return;
-   }catch(e){if(e.name==='AbortError'){status.textContent='Save રદ થયું.';return;} }
-  }
-  const url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download=outFile.name;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),30000);
-  status.textContent='Marked Copy ડાઉનલોડ થઈ રહી છે. iPhone માં Files app માં Save કરી શકો છો. ✓';
- }catch(e){console.error(e);status.textContent='Save થઈ શક્યું નથી: '+e.message;alert('Marked Copy સેવ કરવામાં ભૂલ: '+e.message);}
-}
-
-async function saveA4Jpg(){
- if(!localFile){alert('પહેલા નકશો અથવા ઉતારો Attach કરો.');return;}
- const status=document.getElementById('localSaveStatus');status.textContent='A4 JPG તૈયાર થઈ રહી છે...';
- try{
-  // A4 portrait at 200 DPI (1654 x 2339) keeps mobile memory usage reasonable.
-  const W=1654,H=2339,out=document.createElement('canvas');out.width=W;out.height=H;
-  const ctx=out.getContext('2d');ctx.fillStyle='#ffffff';ctx.fillRect(0,0,W,H);
-  const margin=70,scale=Math.min((W-2*margin)/localDocCanvas.width,(H-2*margin)/localDocCanvas.height);
-  const dw=localDocCanvas.width*scale,dh=localDocCanvas.height*scale,dx=(W-dw)/2,dy=(H-dh)/2;
-  ctx.drawImage(localDocCanvas,dx,dy,dw,dh);
-  ctx.drawImage(localMarkCanvas,dx,dy,dw,dh);
-  const blob=await new Promise((resolve,reject)=>out.toBlob(b=>b?resolve(b):reject(new Error('JPG બનાવવામાં ભૂલ')), 'image/jpeg',.94));
-  const name=(localFile.name.replace(/\.[^.]+$/,'')+'_A4_marked.jpg');
-  const file=new File([blob],name,{type:'image/jpeg'});
-  if(navigator.canShare&&navigator.canShare({files:[file]})){
-   try{await navigator.share({files:[file],title:'A4 Marked Map'});status.textContent='A4 JPG Share Sheet માં ખુલ્યું. Save Image / Save to Files પસંદ કરો.';return;}
-   catch(e){if(e.name==='AbortError'){status.textContent='Share રદ થયું.';return;}}
-  }
-  const url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download=name;document.body.appendChild(a);a.click();a.remove();
-  setTimeout(()=>URL.revokeObjectURL(url),30000);
-  status.textContent='A4 JPG તૈયાર છે. iPhone માં ખોલીને Share → Save Image કરો અથવા Files માં સેવ કરો.';
- }catch(e){console.error(e);status.textContent='A4 JPG સેવ ન થઈ: '+e.message;alert('A4 JPG બનાવવામાં ભૂલ: '+e.message);}
-}
-
 </script>
 </body>
 </html>
