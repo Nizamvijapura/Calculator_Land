@@ -313,7 +313,11 @@
   .settings-fields input { min-width:0; padding:10px 8px; font-size:16px; margin-bottom:7px; }
   .settings-status { margin-top:3px; }
 
-  .survey-head { margin: 2px 0 10px; }
+
+  #tab-settings .unit-settings { margin-top:12px; }
+  #tab-settings .card h2 { margin-bottom:12px; }
+  #tab-settings .settings-fields label { min-height:0; }
+\n  .survey-head { margin: 2px 0 10px; }
   .survey-head label { margin-bottom: 3px; }
   .survey-help, .survey-total-hint { display:block; color:#718198; font-size:12px; }
   .survey-entry {
@@ -364,7 +368,7 @@
   <div class="tabs">
     <button type="button" class="tab active" data-tab="convert">Converter</button>
     <button type="button" class="tab" data-tab="deal">Deal Calculator</button>
-    <button type="button" class="tab" data-tab="history">Saved History</button>
+    <button type="button" class="tab" data-tab="settings">Settings</button>
   </div>
 
   <!-- CONVERT TAB -->
@@ -381,23 +385,7 @@
       </select>
       <label id="convInLabel">Enter Guntha</label>
       <input type="number" id="convIn" placeholder="e.g. 15" step="any">
-      <div class="unit-settings">
-        <div class="unit-settings-title">
-          <strong>માપના સેટિંગ્સ</strong>
-          <span>એકવાર સેટ કરો — આપમેળે સેવ થશે</span>
-        </div>
-        <div class="two-col settings-fields">
-          <div>
-            <label>1 એકર = કેટલા ગુંઠા?</label>
-            <input type="number" id="acreGunthaSetting" value="40" min="0.0001" step="any">
-          </div>
-          <div>
-            <label>1 વિઘા = કેટલા ગુંઠા?</label>
-            <input type="number" id="vighaGunthaSetting" value="16" min="0.0001" step="any">
-          </div>
-        </div>
-        <div id="unitSettingsStatus" class="settings-status">Default: 1 એકર = 40 ગુંઠા • 1 વિઘા = 16 ગુંઠા</div>
-      </div>
+      
       <div id="convHaaGroup" style="display:none">
         <div class="survey-head">
           <label>7/12 ઉતારા મુજબ અલગ અલગ જમીન ઉમેરો</label>
@@ -461,10 +449,33 @@
     </div>
   </div>
 
-  <!-- HISTORY TAB -->
-  <div id="tab-history" style="display:none">
+  <!-- SETTINGS TAB: unit settings + saved history -->
+  <div id="tab-settings" style="display:none">
     <div class="card">
-      <h2>સેવ કરેલી ગણતરીઓ</h2>
+      <div class="card-head"><h2>માપના સેટિંગ્સ</h2></div>
+      <div class="unit-settings">
+        <div class="unit-settings-title">
+          <strong>માપના સેટિંગ્સ</strong>
+          <span>એકવાર સેટ કરો — આપમેળે સેવ થશે</span>
+        </div>
+        <div class="two-col settings-fields">
+          <div>
+            <label>1 એકર = કેટલા ગુંઠા?</label>
+            <input type="number" id="acreGunthaSetting" value="40" min="0.0001" step="any">
+          </div>
+          <div>
+            <label>1 વિઘા = કેટલા ગુંઠા?</label>
+            <input type="number" id="vighaGunthaSetting" value="16" min="0.0001" step="any">
+          </div>
+        </div>
+        <div id="unitSettingsStatus" class="settings-status">Default: 1 એકર = 40 ગુંઠા • 1 વિઘા = 16 ગુંઠા</div>
+      </div>
+      <div class="note" style="color:#718198;text-align:left;margin-top:8px;">
+        અહીં એકવાર તમારા વિસ્તાર પ્રમાણે ગુંઠાનું માપ સેટ કરો. આ સેટિંગ Converter અને Deal Calculator બંનેમાં લાગુ પડશે.
+      </div>
+    </div>
+    <div class="card">
+      <h2>Saved History / સેવ કરેલી ગણતરીઓ</h2>
       <div id="historyList"><div class="hist-empty">હજુ કોઈ ગણતરી સેવ નથી થઈ</div></div>
     </div>
   </div>
@@ -554,13 +565,10 @@ document.querySelectorAll('.tab').forEach(t => {
   t.addEventListener('click', () => {
     document.querySelectorAll('.tab').forEach(x => x.classList.remove('active'));
     t.classList.add('active');
-    ['convert','deal','history'].forEach(name => {
+    ['convert','deal','settings'].forEach(name => {
       document.getElementById('tab-' + name).style.display = (name === t.dataset.tab) ? 'block' : 'none';
     });
     document.body.classList.remove('theme-deal','theme-history');
-    if (t.dataset.tab !== 'convert') {
-      document.body.classList.add('theme-' + t.dataset.tab);
-    }
   });
 });
 
