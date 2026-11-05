@@ -439,7 +439,68 @@
     .survey-measures input { width: 100%; }
   }
 
-</style>
+
+  .converter-actions { display:flex; align-items:center; gap:8px; }
+  .pdf-icon-btn {
+    width:39px; height:36px; display:inline-flex; align-items:center; justify-content:center;
+    border:1px solid #426481; border-radius:9px; background:#173b5d; color:#fff;
+    font-size:20px; cursor:pointer; box-shadow:0 3px 8px rgba(0,0,0,.18);
+  }
+  .pdf-icon-btn:active { transform:scale(.95); opacity:.8; }
+  .pdf-logo { width:23px; height:26px; display:block; }
+  .pdf-meta-fields { gap:10px; }
+  .pdf-meta-fields > div { min-width:0; flex:1; }
+  .pdf-meta-fields input { width:100%; }
+  #printArea { display:none; }
+  @media print {
+    @page { size:A4; margin:16mm 14mm; }
+    html, body { background:#fff !important; color:#172b4d !important; margin:0 !important; padding:0 !important; }
+    body * { visibility:hidden !important; }
+    #printArea, #printArea * { visibility:visible !important; }
+    #printArea {
+      display:block !important; position:absolute; left:0; top:0; width:100%;
+      color:#172b4d !important; background:#fff !important;
+      font-family:Arial, 'Noto Sans Gujarati', sans-serif !important;
+    }
+    .pdf-page { width:100%; margin:0 auto; }
+    .pdf-header { display:flex; justify-content:space-between; align-items:center; gap:15px;
+      border-bottom:3px solid #174d78; padding:0 0 13px; margin-bottom:18px; }
+    .pdf-company { font-size:23px; font-weight:800; color:#123b60 !important; }
+    .pdf-subtitle { margin-top:4px; font-size:11px; letter-spacing:1px; color:#63758a !important; }
+    .pdf-date { font-size:12px; color:#63758a !important; text-align:right; }
+    .pdf-parties { display:grid; grid-template-columns:1fr 1fr; gap:12px; margin:18px 0 22px; }
+    .pdf-parties > div { border:1px solid #d7e1eb; border-radius:7px; padding:10px 12px; }
+    .pdf-parties span { display:block; color:#647890 !important; font-size:11px; margin-bottom:5px; }
+    .pdf-parties strong { display:block; color:#173b60 !important; font-size:15px; overflow-wrap:anywhere; }
+    .pdf-section-title { color:#173b60 !important; font-size:15px; margin:0 0 9px; }
+    .pdf-table { width:100%; border-collapse:collapse; margin:0 0 18px; }
+    .pdf-table { border:1px solid #cbd7e3; }
+    .pdf-table th, .pdf-table td {
+      border:1px solid #cbd7e3 !important;
+      border-bottom:1px solid #cbd7e3 !important;
+      padding:10px 11px; font-size:12px;
+    }
+    .pdf-table tr { border-bottom:1px solid #cbd7e3 !important; }
+    .pdf-table th { text-align:left; background:#edf3f8 !important; color:#294b6b !important; }
+    .pdf-table td:last-child { text-align:right; font-weight:700; color:#173b60 !important; }
+    .pdf-survey-title { font-size:14px; color:#173b60 !important; margin:18px 0 8px; }
+    .pdf-contact {
+      margin-top:25px; padding:13px 10px; border:2px solid #174d78; border-radius:7px;
+      text-align:center; color:#123b60 !important; font-size:20px; font-weight:900;
+      letter-spacing:.5px;
+    }
+    .pdf-footer { border-top:1px solid #dbe4ed; margin-top:16px; padding-top:9px;
+      text-align:center; color:#718198 !important; font-size:10px; }
+    tr, .pdf-parties > div { break-inside:avoid; }
+  }
+
+  /* Highlight Total Value clearly in the converter results */
+  .row.big .val.total-value {
+    font-size: 22px !important;
+    color: #ffc857 !important;
+    font-weight: 900 !important;
+  }
+\n</style>
 </head>
 <body>
 <div class="wrap">
@@ -460,7 +521,18 @@
   <!-- CONVERT TAB -->
   <div id="tab-convert">
     <div class="card">
-      <div class="card-head"><h2>Land Unit Converter</h2><button class="clear-btn" onclick="clearConvert()">Clear</button></div>
+      <div class="card-head"><h2>Land Unit Converter</h2><div class="converter-actions"><button type="button" class="pdf-icon-btn" onclick="saveConverterPDF()" title="Save PDF" aria-label="Save PDF">
+        <svg class="pdf-logo" viewBox="0 0 32 36" aria-hidden="true">
+          <path d="M5 1.5h14l8 8V32a2.5 2.5 0 0 1-2.5 2.5h-17A2.5 2.5 0 0 1 5 32z" fill="#e53935"/>
+          <path d="M19 1.5v6a2 2 0 0 0 2 2h6" fill="#ff8a80"/>
+          <path d="M8 19h16v9H8z" fill="#fff"/>
+          <text x="16" y="26" text-anchor="middle" font-size="7.2" font-weight="900" font-family="Arial,sans-serif" fill="#d32f2f">PDF</text>
+        </svg>
+      </button><button class="clear-btn" onclick="clearConvert()">Clear</button></div></div>
+      <div class="two-col pdf-meta-fields">
+        <div><label for="pdfPersonName">Name</label><input type="text" id="pdfPersonName" placeholder="Name"></div>
+        <div><label for="pdfSurveyNumber">Survey Number</label><input type="text" id="pdfSurveyNumber" placeholder="Survey No."></div>
+      </div>
       <label>Convert From</label>
       <select id="convUnit">
         <option value="acre">Acre</option>
@@ -518,9 +590,6 @@
         <button type="button" class="btn save-settings-btn" onclick="saveUnitSettings()">💾 Save Settings</button>
         <div id="unitSettingsStatus" class="settings-status">Default: 1 એકર = 40 ગુંઠા • 1 વિઘા = 16 ગુંઠા</div>
       </div>
-      <div class="note" style="color:#718198;text-align:left;margin-top:8px;">
-        અહીં એકવાર તમારા વિસ્તાર પ્રમાણે ગુંઠાનું માપ સેટ કરો. આ સેટિંગ Converter અને Deal Calculator બંનેમાં લાગુ પડશે.
-      </div>
     </div>
     <div class="card">
       <h2>Saved History / સેવ કરેલી ગણતરીઓ</h2>
@@ -529,17 +598,26 @@
   </div>
 </div>
 
-<!-- PRINT-ONLY AREA -->
+<!-- PDF / PRINT AREA -->
 <div id="printArea">
-  <div class="ph-head">
-    <div>
-      <div class="ph-title">Wiztech Innovation LLP</div>
-      <div class="ph-sub">Smart Calculator • Land Deal Calculation</div>
+  <div class="pdf-page">
+    <div class="pdf-header">
+      <div>
+        <div class="pdf-company">Wiztech Innovation LLP</div>
+        <div class="pdf-subtitle">SMART CALCULATOR · LAND CONVERSION REPORT</div>
+      </div>
+      <div class="pdf-date" id="pdfDate"></div>
     </div>
-    <div class="ph-date" id="printDate"></div>
+    <div class="pdf-parties">
+      <div><span>Name</span><strong id="pdfOutName">—</strong></div>
+      <div><span>Survey Number</span><strong id="pdfOutSurvey">—</strong></div>
+    </div>
+    <h3 class="pdf-section-title">Calculation Details</h3>
+    <table class="pdf-table" id="pdfSummaryTable"></table>
+    <div id="pdfSurveyDetails"></div>
+    <div class="pdf-contact">CONTACT : 9727908889</div>
+    <div class="pdf-footer">Generated by Smart Calculator · Wiztech Innovation LLP</div>
   </div>
-  <table id="printTable"></table>
-  <div class="ph-verdict" id="printVerdict" style="display:none"></div>
 </div>
 
 <script>
@@ -770,6 +848,68 @@ function clearConvert() {
   surveyRowCount = 0;
   addSurveyRow();
   updateConvUI();
+}
+
+
+// ---- CONVERTER PDF EXPORT ----
+function pdfEscape(value) {
+  return String(value ?? '').replace(/[&<>"]/g, ch => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[ch]));
+}
+
+function saveConverterPDF() {
+  const result = document.getElementById('convResult');
+  if (result.style.display === 'none' || !document.getElementById('conv_guntha').textContent.trim()) {
+    alert('પહેલા ગણતરી કરો, પછી PDF સેવ કરો.');
+    return;
+  }
+
+  const unit = convUnit.value;
+  const unitName = unit === 'haa' ? '7/12 ઉતારો' : (unitLabels[unit] || unit);
+  const inputValue = unit === 'haa' ? '7/12 મુજબના સર્વે માપ' : (convIn.value + ' ' + unitName);
+  const rows = [
+    ['Convert From', inputValue],
+    ['Acre', document.getElementById('conv_acre').textContent],
+    ['Vigha (વિઘા)', document.getElementById('conv_vigha').textContent],
+    ['Guntha', document.getElementById('conv_guntha').textContent],
+    ['Square Feet', document.getElementById('conv_sqft').textContent],
+    ['Square Meter', document.getElementById('conv_sqm').textContent]
+  ];
+  if (document.getElementById('convRowValue').style.display !== 'none') {
+    rows.push(['Rate', convRate.value ? '₹ ' + fmt(convRate.value) : '—']);
+    rows.push(['Total Value', document.getElementById('conv_value').textContent]);
+    rows.push(['Amount in Words', document.getElementById('convValueWords').textContent]);
+  }
+
+  document.getElementById('pdfOutName').textContent = document.getElementById('pdfPersonName').value.trim() || '—';
+  const surveyNumbers = [];
+  if (document.getElementById('pdfSurveyNumber').value.trim()) surveyNumbers.push(document.getElementById('pdfSurveyNumber').value.trim());
+  document.querySelectorAll('.survey-entry').forEach(entry => {
+    const sn = entry.querySelector('.survey-number').value.trim();
+    if (sn) surveyNumbers.push(sn);
+  });
+  document.getElementById('pdfOutSurvey').textContent = surveyNumbers.length ? surveyNumbers.join(', ') : '—';
+  document.getElementById('pdfDate').textContent = new Date().toLocaleDateString('en-IN');
+
+  document.getElementById('pdfSummaryTable').innerHTML =
+    '<tbody>' + rows.map(([k,v]) => `<tr><th>${pdfEscape(k)}</th><td>${pdfEscape(v)}</td></tr>`).join('') + '</tbody>';
+
+  const surveyRows = [...document.querySelectorAll('.survey-entry')];
+  const filledSurveys = surveyRows.map((entry, index) => ({
+    number: entry.querySelector('.survey-number').value.trim() || `Survey ${index + 1}`,
+    h: entry.querySelector('.survey-hectare').value || '0',
+    a: entry.querySelector('.survey-are').value || '0',
+    sqm: entry.querySelector('.survey-sqm').value || '0'
+  })).filter(x => Number(x.h) || Number(x.a) || Number(x.sqm) || x.number !== 'Survey 1');
+
+  let detailHtml = '';
+  if (unit === 'haa' && filledSurveys.length) {
+    detailHtml = '<h3 class="pdf-survey-title">Survey-wise Input Details</h3>' +
+      '<table class="pdf-table"><thead><tr><th>Survey Number</th><th>હે.</th><th>આર</th><th>ચો.મી.</th></tr></thead><tbody>' +
+      filledSurveys.map(x => `<tr><td>${pdfEscape(x.number)}</td><td>${pdfEscape(x.h)}</td><td>${pdfEscape(x.a)}</td><td>${pdfEscape(x.sqm)}</td></tr>`).join('') +
+      '</tbody></table>';
+  }
+  document.getElementById('pdfSurveyDetails').innerHTML = detailHtml;
+  window.print(); // Select "Save as PDF" in the browser print dialog.
 }
 
 // ---- DEAL TAB (linked) ----
