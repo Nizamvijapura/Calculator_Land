@@ -506,7 +506,39 @@
     color: #ffc857 !important;
     font-weight: 900 !important;
   }
-\n</style>
+\n
+  /* UI readability update: increase interface typography by about 2px */
+  @media screen {
+    header h1 { font-size: calc(clamp(27px, 5vw, 34px) + 2px) !important; }
+    .copyright { font-size: 18px !important; }
+    .copyright .dev-line { font-size: 15px !important; }
+    .support-line { font-size: 16px !important; }
+    .support-line a {
+      font-size: 16px !important;
+      color: #ffd54f !important;
+      font-weight: 900 !important;
+    }
+    .tab { font-size: 16px !important; }
+    .card h2 { font-size: 21px !important; }
+    label { font-size: 16px !important; }
+    input[type=number], input[type=text], input[type=tel], select, textarea {
+      font-size: 19px !important;
+    }
+    .row { font-size: 17.5px !important; }
+    .row.big .val { font-size: 22px !important; }
+    .btn { font-size: 17.5px !important; }
+    .clear-btn { font-size: 15px !important; }
+    .hist-item { font-size: 18.5px !important; }
+    .note { font-size: 15px !important; }
+    .settings-fields label { font-size: 14px !important; }
+    .settings-fields input { font-size: 18px !important; }
+    .survey-entry-head strong { font-size: 16px !important; }
+    .survey-measures label { font-size: 14px !important; }
+    .survey-measures input { font-size: 18px !important; }
+    .unit-settings-title strong { font-size: 16px !important; }
+  }
+
+</style>
 </head>
 <body>
 <div class="wrap">
