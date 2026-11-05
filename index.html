@@ -442,9 +442,9 @@
 
   .doc-tools{display:flex;align-items:center;gap:7px;flex-wrap:wrap;margin:10px 0}
   .doc-tools .btn{width:auto;flex:1 1 auto;margin:0;padding:10px 12px}
-  .doc-stage{position:relative;overflow:auto;background:#071321;border:1px solid #426481;border-radius:10px;min-height:220px;max-height:75vh;text-align:center;touch-action:pan-x pan-y}
-  #docCanvas{display:block;margin:0 auto;max-width:none}
-  #markCanvas{position:absolute;left:50%;top:0;transform:translateX(-50%);touch-action:none;cursor:crosshair}
+  .doc-stage{position:relative;overflow:auto;-webkit-overflow-scrolling:touch;background:#071321;border:1px solid #426481;border-radius:10px;min-height:220px;max-height:75vh;text-align:left;touch-action:pan-x pan-y;overscroll-behavior:contain}
+  #docCanvas{display:block;margin:0;max-width:none;height:auto}
+  #markCanvas{position:absolute;left:0;top:0;transform:none;touch-action:none;-webkit-user-select:none;user-select:none;-webkit-touch-callout:none;cursor:crosshair;z-index:2}
   .doc-list-item{background:#0b1e30;border:1px solid #2b4b66;border-radius:11px;padding:12px;margin-top:9px}
   .doc-list-item strong{display:block;color:#f3f8ff;font-size:16px}
   .doc-list-item small{display:block;color:#afc2d5;margin:5px 0}
@@ -816,9 +816,7 @@ function runConvert() {
 convUnit.addEventListener('change', updateConvUI);
 convIn.addEventListener('input', runConvert);
 convRate.addEventListener('input', runConvert);
-['convHectare','convAre','convSqm'].forEach(id => {
-  document.getElementById(id).addEventListener('input', runConvert);
-});
+
 initializeUnitSettings();
 updateConvUI();
 
@@ -830,156 +828,6 @@ function clearConvert() {
   surveyRowCount = 0;
   addSurveyRow();
   updateConvUI();
-}
-
-// ---- DEAL TAB (linked) ----
-const dAcre = document.getElementById('d_acre');
-const dGuntha = document.getElementById('d_guntha');
-const dAcrePrice = document.getElementById('d_acrePrice');
-const dGunthaPrice = document.getElementById('d_gunthaPrice');
-let dealLastEdited = 'acrePrice';
-
-function totalGunthaOfLand() {
-  const a = parseFloat(dAcre.value) || 0;
-  const g = parseFloat(dGuntha.value) || 0;
-  return (a * UNIT_SETTINGS.acreGuntha) + g;
-}
-
-function recomputeDeal() {
-  const totalG = totalGunthaOfLand();
-  let acrePrice = parseFloat(dAcrePrice.value);
-  let gunthaPrice = parseFloat(dGunthaPrice.value);
-
-  if (dealLastEdited === 'acrePrice' && !isNaN(acrePrice)) {
-    gunthaPrice = acrePrice / UNIT_SETTINGS.acreGuntha;
-    dGunthaPrice.value = gunthaPrice ? +gunthaPrice.toFixed(2) : '';
-  } else if (dealLastEdited === 'gunthaPrice' && !isNaN(gunthaPrice)) {
-    acrePrice = gunthaPrice * UNIT_SETTINGS.acreGuntha;
-    dAcrePrice.value = acrePrice ? +acrePrice.toFixed(2) : '';
-  }
-
-  const box = document.getElementById('dealResult');
-  if ((isNaN(acrePrice) && isNaN(gunthaPrice)) || totalG === 0) { box.style.display = 'none'; return; }
-  if (isNaN(gunthaPrice)) gunthaPrice = acrePrice / UNIT_SETTINGS.acreGuntha;
-  if (isNaN(acrePrice)) acrePrice = gunthaPrice * UNIT_SETTINGS.acreGuntha;
-
-  const total = totalG * gunthaPrice;
-  box.style.display = 'block';
-  document.getElementById('d_totalLand').textContent = fmt(totalG/UNIT_SETTINGS.acreGuntha) + ' એકર (' + fmt(totalG) + ' ગુંઠા)';
-  document.getElementById('d_showAcrePrice').textContent = fmtMoney(acrePrice);
-  document.getElementById('d_showGunthaPrice').textContent = fmtMoney(gunthaPrice.toFixed(2));
-  document.getElementById('d_total').textContent = fmtMoney(total);
-  document.getElementById('d_totalWords').textContent = numberToGujaratiWords(total);
-}
-dAcre.addEventListener('input', recomputeDeal);
-dGuntha.addEventListener('input', recomputeDeal);
-dAcrePrice.addEventListener('input', () => { dealLastEdited = 'acrePrice'; recomputeDeal(); });
-dGunthaPrice.addEventListener('input', () => { dealLastEdited = 'gunthaPrice'; recomputeDeal(); });
-
-function clearDeal() {
-  dAcre.value = ''; dGuntha.value = '';
-  dAcrePrice.value = ''; dGunthaPrice.value = '';
-  dealLastEdited = 'acrePrice';
-  document.getElementById('dealResult').style.display = 'none';
-  document.getElementById('banakhatCard').style.display = 'none';
-}
-
-function saveDealHistory() {
-  const totalG = totalGunthaOfLand();
-  const totalTxt = document.getElementById('d_total').textContent;
-  if (totalG === 0 || totalTxt === '-') { alert('પહેલા જમીન અને ભાવ ભરો'); return; }
-  const now = new Date();
-  history.unshift({
-    line1: fmt(totalG/UNIT_SETTINGS.acreGuntha) + ' એકર જમીન',
-    line2: 'ગુંઠા ભાવ: ' + document.getElementById('d_showGunthaPrice').textContent,
-    total: totalTxt,
-    time: now.toLocaleDateString('en-IN') + ' ' + now.toLocaleTimeString('en-IN', {hour:'2-digit', minute:'2-digit'})
-  });
-  renderHistory();
-  alert('સેવ થયું ✓');
-}
-
-function printDeal() {
-  const totalTxt = document.getElementById('d_total').textContent;
-  if (totalTxt === '-') { alert('પહેલા જમીન અને ભાવ ભરો'); return; }
-  document.getElementById('printDate').textContent = new Date().toLocaleDateString('en-IN');
-  let rows = `
-    <tr><td class="k">Total Land</td><td class="v">${document.getElementById('d_totalLand').textContent}</td></tr>
-    <tr><td class="k">Price per Acre</td><td class="v">${document.getElementById('d_showAcrePrice').textContent}</td></tr>
-    <tr><td class="k">Price per Guntha</td><td class="v">${document.getElementById('d_showGunthaPrice').textContent}</td></tr>
-  `;
-  document.getElementById('printTable').innerHTML = rows;
-  document.getElementById('printVerdict').style.display = 'block';
-  document.getElementById('printVerdict').innerHTML = 'Total Amount Payable: ' + totalTxt + '<br><span style="font-size:15px;font-weight:400;">(' + document.getElementById('d_totalWords').textContent + ')</span>';
-  window.print();
-}
-
-function shareDealWhatsapp() {
-  const totalTxt = document.getElementById('d_total').textContent;
-  if (totalTxt === '-') { alert('પહેલા જમીન અને ભાવ ભરો'); return; }
-  let msg = '*જમીન સોદાની વિગત*%0A%0A';
-  msg += 'જમીન: ' + document.getElementById('d_totalLand').textContent + '%0A';
-  msg += 'એકરનો ભાવ: ' + document.getElementById('d_showAcrePrice').textContent + '%0A';
-  msg += '*કુલ રકમ: ' + totalTxt + '*%0A';
-  msg += '(' + document.getElementById('d_totalWords').textContent + ')%0A%0A';
-  msg += '- Wiztech Innovation LLP';
-  const url = `https://wa.me/?text=${msg}`;
-  window.open(url, '_blank');
-}
-
-function toggleBanakhat() {
-  const card = document.getElementById('banakhatCard');
-  if (card.style.display === 'block') { card.style.display = 'none'; return; }
-  const totalTxt = document.getElementById('d_total').textContent;
-  if (totalTxt === '-') { alert('પહેલા જમીન અને ભાવ ભરો'); return; }
-  const seller = '_______________';
-  const buyer = '_______________';
-  const address = '_______________';
-  const land = document.getElementById('d_totalLand').textContent;
-  const words = document.getElementById('d_totalWords').textContent;
-  const today = new Date().toLocaleDateString('en-IN');
-  const draft = `બાનાખત (સેલ એગ્રીમેન્ટ ડ્રાફ્ટ)
-
-તારીખ: ${today}
-
-આ બાનાખત નીચે મુજબની શરતોએ કરવામાં આવે છે:
-
-વેચનાર: ${seller}
-ખરીદનાર: ${buyer}
-
-જમીનની વિગત:
-સરનામું / લોકેશન: ${address}
-કુલ ક્ષેત્રફળ: ${land}
-
-સોદાની કુલ રકમ: ${totalTxt}
-(અક્ષરે: ${words})
-
-શરતો:
-1. ઉપર જણાવેલ જમીન વેચનાર દ્વારા ખરીદનારને વેચવામાં આવે છે.
-2. ઉપર જણાવેલ રકમ બંને પક્ષોની સંમતિથી નક્કી કરવામાં આવેલ છે.
-3. રજિસ્ટ્રેશન સમયે બાકી રકમની ચુકવણી કરવામાં આવશે.
-4. જમીન પર કોઈ બોજો/વિવાદ નથી તેની જવાબદારી વેચનારની રહેશે.
-
-વેચનારની સહી: _______________          ખરીદનારની સહી: _______________
-
-સાક્ષી 1: _______________          સાક્ષી 2: _______________
-
-(આ એક સાદો ડ્રાફ્ટ છે. અંતિમ રજિસ્ટ્રેશન પહેલા વકીલ પાસે ચકાસાવો.)`;
-  document.getElementById('banakhatText').value = draft;
-  card.style.display = 'block';
-}
-
-function copyBanakhat() {
-  const text = document.getElementById('banakhatText').value;
-  navigator.clipboard.writeText(text).then(() => alert('Copy થયું ✓')).catch(() => alert('Copy ના થયું, જાતે select કરી copy કરો'));
-}
-
-function printBanakhat() {
-  document.getElementById('printDate').textContent = new Date().toLocaleDateString('en-IN');
-  const text = document.getElementById('banakhatText').value.replace(/\n/g, '<br>');
-  document.getElementById('printTable').innerHTML = `<tr><td colspan="2" style="white-space:normal; line-height:1.8;">${text}</td></tr>`;
-  document.getElementById('printVerdict').style.display = 'none';
-  window.print();
 }
 
 // ---- HISTORY ----
@@ -1014,22 +862,28 @@ async function landDB(action,record,id){
   const tx=db.transaction(LAND_STORE,action==='get'||action==='all'?'readonly':'readwrite');
   const st=tx.objectStore(LAND_STORE);
   let req= action==='add'?st.add(record):action==='put'?st.put(record):action==='get'?st.get(id):action==='all'?st.getAll():st.delete(id);
-  req.onsuccess=()=>resolve(req.result);req.onerror=()=>reject(req.error);
+  req.onsuccess=()=>resolve(req.result);
+  req.onerror=()=>reject(req.error||new Error('Database request failed'));
   tx.oncomplete=()=>db.close();
+  tx.onerror=()=>{db.close();reject(tx.error||new Error('Database transaction failed'));};
+  tx.onabort=()=>{db.close();reject(tx.error||new Error('Database transaction aborted'));};
  });
 }
 async function saveLandDocument(){
  const file=document.getElementById('docFile').files[0], title=document.getElementById('docTitle').value.trim();
  const status=document.getElementById('docSaveStatus');
- if(!file){alert('પહેલા PDF અથવા ફોટો પસંદ કરો.');return;}
- if(!title){alert('દસ્તાવેજનું નામ લખો.');return;}
- if(!(file.type==='application/pdf'||file.type.startsWith('image/'))){alert('માત્ર PDF અથવા image ફાઇલ અપલોડ કરો.');return;}
+ if(!file){status.textContent='કૃપા કરીને પહેલા PDF અથવા ફોટો પસંદ કરો.';alert('પહેલા PDF અથવા ફોટો પસંદ કરો.');return;}
+ if(!title){status.textContent='દસ્તાવેજનું નામ જરૂરી છે.';alert('દસ્તાવેજનું નામ લખો.');return;}
+ if(!(file.type==='application/pdf'||file.type.startsWith('image/'))){status.textContent='આ ફાઇલનો પ્રકાર માન્ય નથી.';alert('માત્ર PDF અથવા image ફાઇલ અપલોડ કરો.');return;}
+ if(location.protocol==='file:'){status.textContent='iPhone માં આ ફાઇલ Files માંથી સીધી નહીં, HTTPS વેબસાઇટ પરથી ખોલો.';alert('iPhone પર GitHub Pages ની https:// લિંકથી ખોલો. Files એપમાંથી HTML સીધી ખોલવાથી સેવ/માર્કિંગમાં મર્યાદા આવી શકે છે.');return;}
+ if(file.size>80*1024*1024){status.textContent='ફાઇલ 80 MB કરતાં મોટી છે.';alert('મોબાઇલમાં સરળતાથી સેવ કરવા 80 MB કરતાં નાની PDF અથવા ફોટો વાપરો.');return;}
+ status.textContent='દસ્તાવેજ સેવ થઈ રહ્યો છે... કૃપા કરીને રાહ જુઓ.';
  try{
   await landDB('add',{title,village:document.getElementById('docVillage').value.trim(),survey:document.getElementById('docSurvey').value.trim(),name:file.name,type:file.type,blob:file,marks:[],created:new Date().toISOString()});
   status.textContent='દસ્તાવેજ સફળતાપૂર્વક સેવ થયો ✓';
   document.getElementById('docTitle').value='';document.getElementById('docVillage').value='';document.getElementById('docSurvey').value='';document.getElementById('docFile').value='';
   await renderLandDocuments();
- }catch(e){status.textContent='સેવ ન થઈ શક્યો. બ્રાઉઝર સ્ટોરેજ ખાલી કરો અથવા નાની ફાઇલ અજમાવો.';console.error(e);}
+ }catch(e){status.textContent='સેવ કરવામાં ભૂલ: '+(e?.message||'Storage unavailable');console.error('Land document save error:',e);alert('દસ્તાવેજ સેવ ન થયો. Browser storage permission અથવા જગ્યા તપાસો.');}
 }
 async function renderLandDocuments(){
  const all=await landDB('all'), q=(document.getElementById('docSearch').value||'').toLowerCase();
@@ -1046,46 +900,123 @@ function resizeMarkCanvas(w,h){
  const c=document.getElementById('markCanvas');c.width=w;c.height=h;c.style.width=w+'px';c.style.height=h+'px';
  document.getElementById('docCanvas').style.width=w+'px';document.getElementById('docCanvas').style.height=h+'px';
 }
+let activeImageUrl=null;
 async function openLandDocument(id){
- activeLandDoc=await landDB('get',null,id);if(!activeLandDoc)return;
- document.getElementById('docViewerCard').style.display='block';document.getElementById('viewerTitle').textContent=activeLandDoc.title;
- docMarks=activeLandDoc.marks||[];activePdf=null;activePdfPage=1;docZoom=1;
- if(activeLandDoc.type==='application/pdf'){
-  if(!window.pdfjsLib){alert('PDF viewer લોડ નથી થયું. ઇન્ટરનેટ ચાલુ રાખીને પેજ ફરી ખોલો.');return;}
-  pdfjsLib.GlobalWorkerOptions.workerSrc='https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
-  const url=URL.createObjectURL(activeLandDoc.blob);activePdf=await pdfjsLib.getDocument(url).promise;await renderPdfPage();
- }else{
-  const url=URL.createObjectURL(activeLandDoc.blob),img=new Image();
-  img.onload=()=>{const c=document.getElementById('docCanvas'),ctx=c.getContext('2d');const maxW=Math.min(window.innerWidth-48,1100);const scale=Math.min(1,maxW/img.width)*docZoom;c.width=Math.round(img.width*scale);c.height=Math.round(img.height*scale);ctx.drawImage(img,0,0,c.width,c.height);resizeMarkCanvas(c.width,c.height);drawSavedMarks();};
-  img.src=url;document.getElementById('pdfPageInfo').textContent='Image';
- }
- document.getElementById('docViewerCard').scrollIntoView({behavior:'smooth'});
+ try{
+  activeLandDoc=await landDB('get',null,id);if(!activeLandDoc)return;
+  document.getElementById('docViewerCard').style.display='block';
+  document.getElementById('viewerTitle').textContent=activeLandDoc.title;
+  docMarks=activeLandDoc.marks||[];activePdf=null;activePdfPage=1;docZoom=1;
+  if(activeImageUrl){URL.revokeObjectURL(activeImageUrl);activeImageUrl=null;}
+  if(activeLandDoc.type==='application/pdf'){
+   if(!window.pdfjsLib){alert('PDF viewer લોડ નથી થયું. ઇન્ટરનેટ ચાલુ રાખીને ફરી પ્રયાસ કરો.');return;}
+   pdfjsLib.GlobalWorkerOptions.workerSrc='https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+   activeImageUrl=URL.createObjectURL(activeLandDoc.blob);
+   activePdf=await pdfjsLib.getDocument({url:activeImageUrl}).promise;
+   await renderPdfPage();
+  }else{
+   activeImageUrl=URL.createObjectURL(activeLandDoc.blob);
+   await renderImageDocument();
+  }
+  document.getElementById('docViewerCard').scrollIntoView({behavior:'smooth',block:'start'});
+ }catch(e){console.error('Open document error:',e);alert('દસ્તાવેજ ખોલવામાં ભૂલ: '+(e?.message||'ફાઇલ વાંચી શકાતી નથી'));}
+}
+async function renderImageDocument(){
+ return new Promise((resolve,reject)=>{
+  const img=new Image();
+  img.onload=()=>{
+   const c=document.getElementById('docCanvas'),ctx=c.getContext('2d');
+   const maxW=Math.min(window.innerWidth-48,1100);
+   const scale=Math.min(1,maxW/img.width)*docZoom;
+   c.width=Math.max(1,Math.round(img.width*scale));c.height=Math.max(1,Math.round(img.height*scale));
+   ctx.drawImage(img,0,0,c.width,c.height);resizeMarkCanvas(c.width,c.height);
+   drawSavedMarks();document.getElementById('pdfPageInfo').textContent='Image';resolve();
+  };
+  img.onerror=()=>reject(new Error('Image ફાઇલ ખોલી શકાતી નથી'));
+  img.src=activeImageUrl;
+ });
 }
 async function renderPdfPage(){
+ if(!activePdf)return;
  const page=await activePdf.getPage(activePdfPage),base=page.getViewport({scale:1});
  const maxW=Math.min(window.innerWidth-48,1100),scale=Math.min(1.5,maxW/base.width)*docZoom,viewport=page.getViewport({scale});
  const c=document.getElementById('docCanvas');c.width=Math.round(viewport.width);c.height=Math.round(viewport.height);
- await page.render({canvasContext:c.getContext('2d'),viewport}).promise;resizeMarkCanvas(c.width,c.height);drawSavedMarks();
+ await page.render({canvasContext:c.getContext('2d'),viewport}).promise;
+ resizeMarkCanvas(c.width,c.height);drawSavedMarks();
  document.getElementById('pdfPageInfo').textContent=activePdfPage+' / '+activePdf.numPages;
 }
-function changePdfPage(n){if(!activePdf)return;activePdfPage=Math.max(1,Math.min(activePdf.numPages,activePdfPage+n));renderPdfPage();}
-function changeDocZoom(f){if(!activeLandDoc)return;docZoom=Math.max(.5,Math.min(5,docZoom*f));const id=activeLandDoc.id,marks=docMarks;openLandDocument(id).then(()=>{docMarks=marks;drawSavedMarks();});}
-function resetDocZoom(){if(!activeLandDoc)return;docZoom=1;const id=activeLandDoc.id,marks=docMarks;openLandDocument(id).then(()=>{docMarks=marks;drawSavedMarks();});}
+function changePdfPage(n){if(!activePdf)return;activePdfPage=Math.max(1,Math.min(activePdf.numPages,activePdfPage+n));renderPdfPage().catch(e=>alert('PDF પેજ ખોલવામાં ભૂલ: '+e.message));}
+function changeDocZoom(f){
+ if(!activeLandDoc)return;docZoom=Math.max(.5,Math.min(5,docZoom*f));
+ const task=activePdf?renderPdfPage():renderImageDocument();
+ task.catch(e=>alert('Zoom કરવામાં ભૂલ: '+e.message));
+}
+function resetDocZoom(){
+ if(!activeLandDoc)return;docZoom=1;
+ const task=activePdf?renderPdfPage():renderImageDocument();
+ task.catch(e=>alert('Zoom reset કરવામાં ભૂલ: '+e.message));
+}
 function closeLandDocument(){document.getElementById('docViewerCard').style.display='none';activeLandDoc=null;activePdf=null;docMarks=[];}
 function drawSavedMarks(){
  const c=document.getElementById('markCanvas'),ctx=c.getContext('2d');ctx.clearRect(0,0,c.width,c.height);
  const marks=docMarks.filter(m=>!activePdf||m.page===activePdfPage);
  marks.forEach(m=>{const sx=c.width/(m.canvasW||c.width),sy=c.height/(m.canvasH||c.height);ctx.save();ctx.scale(sx,sy);ctx.strokeStyle=m.color;ctx.lineWidth=m.width||4;ctx.lineCap='round';ctx.beginPath();if(m.tool==='circle'){ctx.ellipse(m.x,m.y,m.w,m.h,0,0,Math.PI*2);}else{ctx.moveTo(m.points[0][0],m.points[0][1]);m.points.slice(1).forEach(p=>ctx.lineTo(p[0],p[1]));}ctx.stroke();ctx.restore();});
 }
-function pointerPos(e){const r=document.getElementById('markCanvas').getBoundingClientRect();return [e.clientX-r.left,e.clientY-r.top];}
+function pointerPos(e){
+ const r=markCanvas.getBoundingClientRect();
+ const sx=markCanvas.width/(r.width||markCanvas.width),sy=markCanvas.height/(r.height||markCanvas.height);
+ return [(e.clientX-r.left)*sx,(e.clientY-r.top)*sy];
+}
 const markCanvas=document.getElementById('markCanvas');
-markCanvas.addEventListener('pointerdown',e=>{if(!activeLandDoc)return;e.preventDefault();markCanvas.setPointerCapture(e.pointerId);const [x,y]=pointerPos(e);drawState={tool:document.getElementById('markTool').value,color:document.getElementById('markColor').value,x,y,points:[[x,y]],page:activePdf?activePdfPage:0,canvasW:markCanvas.width,canvasH:markCanvas.height};});
-markCanvas.addEventListener('pointermove',e=>{if(!drawState)return;const [x,y]=pointerPos(e);drawState.points.push([x,y]);drawSavedMarks();const ctx=markCanvas.getContext('2d');ctx.strokeStyle=drawState.color;ctx.lineWidth=4;ctx.lineCap='round';ctx.beginPath();if(drawState.tool==='circle'){ctx.ellipse(drawState.x,drawState.y,Math.abs(x-drawState.x),Math.abs(y-drawState.y),0,0,Math.PI*2);}else{ctx.moveTo(...drawState.points[0]);drawState.points.slice(1).forEach(p=>ctx.lineTo(...p));}ctx.stroke();});
-markCanvas.addEventListener('pointerup',e=>{if(!drawState)return;const [x,y]=pointerPos(e);if(drawState.tool==='circle')docMarks.push({...drawState,w:Math.max(2,Math.abs(x-drawState.x)),h:Math.max(2,Math.abs(y-drawState.y))});else docMarks.push({...drawState});drawState=null;drawSavedMarks();});
+function beginMark(x,y){
+ if(!activeLandDoc)return;
+ drawState={tool:document.getElementById('markTool').value,color:document.getElementById('markColor').value,
+ x,y,points:[[x,y]],page:activePdf?activePdfPage:0,canvasW:markCanvas.width,canvasH:markCanvas.height};
+}
+function moveMark(x,y){
+ if(!drawState)return;
+ drawState.points.push([x,y]);drawSavedMarks();
+ const ctx=markCanvas.getContext('2d');ctx.strokeStyle=drawState.color;ctx.lineWidth=4;ctx.lineCap='round';ctx.beginPath();
+ if(drawState.tool==='circle'){ctx.ellipse(drawState.x,drawState.y,Math.abs(x-drawState.x),Math.abs(y-drawState.y),0,0,Math.PI*2);}
+ else{ctx.moveTo(...drawState.points[0]);drawState.points.slice(1).forEach(p=>ctx.lineTo(p[0],p[1]));}
+ ctx.stroke();
+}
+function finishMark(x,y){
+ if(!drawState)return;
+ if(drawState.tool==='circle')docMarks.push({...drawState,w:Math.max(2,Math.abs(x-drawState.x)),h:Math.max(2,Math.abs(y-drawState.y))});
+ else docMarks.push({...drawState});
+ drawState=null;drawSavedMarks();
+}
+if(window.PointerEvent){
+ markCanvas.addEventListener('pointerdown',e=>{
+  if(!activeLandDoc)return;e.preventDefault();
+  try{markCanvas.setPointerCapture(e.pointerId);}catch(_){}
+  const [x,y]=pointerPos(e);beginMark(x,y);
+ });
+ markCanvas.addEventListener('pointermove',e=>{if(!drawState)return;e.preventDefault();const [x,y]=pointerPos(e);moveMark(x,y);});
+ markCanvas.addEventListener('pointerup',e=>{if(!drawState)return;e.preventDefault();const [x,y]=pointerPos(e);finishMark(x,y);});
+ markCanvas.addEventListener('pointercancel',()=>{drawState=null;});
+}else{
+ // Legacy iOS Safari touch fallback
+ markCanvas.addEventListener('touchstart',e=>{
+  if(!activeLandDoc||!e.touches.length)return;e.preventDefault();
+  const t=e.touches[0],r=markCanvas.getBoundingClientRect();
+  beginMark((t.clientX-r.left)*markCanvas.width/r.width,(t.clientY-r.top)*markCanvas.height/r.height);
+ },{passive:false});
+ markCanvas.addEventListener('touchmove',e=>{
+  if(!drawState||!e.touches.length)return;e.preventDefault();
+  const t=e.touches[0],r=markCanvas.getBoundingClientRect();
+  moveMark((t.clientX-r.left)*markCanvas.width/r.width,(t.clientY-r.top)*markCanvas.height/r.height);
+ },{passive:false});
+ markCanvas.addEventListener('touchend',e=>{
+  if(!drawState)return;e.preventDefault();const t=e.changedTouches[0],r=markCanvas.getBoundingClientRect();
+  finishMark((t.clientX-r.left)*markCanvas.width/r.width,(t.clientY-r.top)*markCanvas.height/r.height);
+ },{passive:false});
+}
 async function saveDocMarks(){if(!activeLandDoc)return;activeLandDoc.marks=docMarks;await landDB('put',activeLandDoc);alert('માર્કિંગ સેવ થઈ ગઈ ✓');}
 function undoDocMark(){if(!docMarks.length)return;docMarks.pop();drawSavedMarks();}
 document.getElementById('docSearch').addEventListener('input',renderLandDocuments);
-renderLandDocuments().catch(()=>{});
+renderLandDocuments().catch(e=>{document.getElementById('docList').innerHTML='<div class="hist-empty">આ બ્રાઉઝરમાં દસ્તાવેજ સ્ટોરેજ ઉપલબ્ધ નથી. iPhone માં Safari ની https:// વેબસાઇટ પરથી ખોલો અને Private Browsing બંધ રાખો.</div>';console.error(e);});
 
 </script>
 </body>
