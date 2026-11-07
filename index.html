@@ -591,7 +591,7 @@ header .dev-line {
   display: block;
   margin-top: 5px;
   color: #ffd166;
-  font-size: 24px;
+  font-size: 26px;
   font-weight: 800;
   letter-spacing: .4px;
 }
@@ -651,6 +651,33 @@ header .dev-line {
   font-weight: 700;
 }
 
+
+/* V15: software credit line */
+header .software-credit {
+  margin-top: 7px;
+  color: #d8e8f5;
+  font-family: Arial, Helvetica, sans-serif !important;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: .2px;
+  line-height: 1.4;
+}
+
+
+/* V16: persistent selected state for Convert From */
+#convUnit.is-selected {
+  border: 3px solid #ffcf33 !important;
+  box-shadow: 0 0 0 3px rgba(255,207,51,.22), 0 0 14px rgba(255,207,51,.28);
+  outline: none !important;
+}
+#convUnit:focus, #convUnit.is-selected:focus {
+  border-color: #ffcf33 !important;
+  outline: none !important;
+}
+.convert-from-label.is-selected {
+  box-shadow: 0 0 0 3px rgba(255,207,51,.25), 0 3px 10px rgba(0,0,0,.25);
+}
+
 </style>
 </head>
 <body>
@@ -658,8 +685,9 @@ header .dev-line {
   <header>
     <h1>Wiztech Innovation LLP</h1>
     <div class="copyright">
-      <div class="dev-line">Smart Calculator</div>
+      <div class="dev-line">Smart Land Calculator</div>
       <div class="support-line">Support : <a href="tel:9727908889">9727908889</a></div>
+      <div class="software-credit">© Wiztech Innovation LLP | Software Development</div>
     </div>
   </header>
 
@@ -684,7 +712,7 @@ header .dev-line {
         <div><label for="pdfPersonName">Name</label><input type="text" id="pdfPersonName" placeholder="Name"></div>
         <div><label for="pdfSurveyNumber">Survey Number</label><input type="text" id="pdfSurveyNumber" placeholder="Survey No."></div>
       </div>
-      <label class="convert-from-label" for="convUnit">Convert From</label>
+      <label class="convert-from-label" for="convUnit" id="convertFromLabel">Convert From</label>
       <select id="convUnit">
         <option value="acre">Acre</option>
         <option value="guntha" selected>Guntha</option>
@@ -752,7 +780,7 @@ header .dev-line {
   <div id="tab-excel" style="display:none">
     <div class="card">
       <div class="card-head">
-        <h2>Excel – Guntha Rate Calculator</h2>
+        
         <button type="button" class="clear-btn" id="excelClearBtn" onclick="return window.clearExcelSheet()">Clear</button>
       </div>
       <div class="excel-toolbar">
@@ -1022,6 +1050,17 @@ convRate.addEventListener('input', runConvert);
 // 7/12 survey inputs attach their own input listeners when each row is created.
 initializeUnitSettings();
 clearExcelSheet();
+
+// Preserve the yellow highlight after Convert From is clicked.
+const convertFromLabel = document.getElementById('convertFromLabel');
+const convertUnitSelect = document.getElementById('convUnit');
+function keepConvertFromHighlighted() {
+  convertUnitSelect.classList.add('is-selected');
+  convertFromLabel.classList.add('is-selected');
+}
+convertFromLabel.addEventListener('click', keepConvertFromHighlighted);
+convertUnitSelect.addEventListener('click', keepConvertFromHighlighted);
+convertUnitSelect.addEventListener('change', keepConvertFromHighlighted);
 updateConvUI();
 
 function clearConvert() {
