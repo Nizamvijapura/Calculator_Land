@@ -710,6 +710,30 @@ header .software-credit {
 #passwordGate .gate-error { min-height:20px; margin-top:10px; color:#ff929b; font-size:13px; }
 #appContent { display:none; }
 
+
+/* V21: Survey / Utaro highlight and clean empty measurement fields */
+.survey-entry-head strong {
+  color: #ffca36 !important;
+  background: linear-gradient(90deg,#fff1b8,#ffd45a);
+  color: #183047 !important;
+  padding: 7px 11px;
+  border-radius: 7px;
+  font-weight: 800 !important;
+  box-shadow: 0 2px 7px rgba(0,0,0,.18);
+}
+.survey-entry input {
+  background: #0b1d2c !important;
+  color: #ffffff !important;
+  border: 1.5px solid #426481 !important;
+}
+.survey-entry input:focus,
+.survey-entry input.has-value {
+  border: 2px solid #ffca36 !important;
+  background: #182b3c !important;
+  box-shadow: 0 0 0 3px rgba(255,202,54,.18), 0 0 12px rgba(255,202,54,.2) !important;
+  outline: none !important;
+}
+
 </style>
 </head>
 <body>
@@ -984,14 +1008,18 @@ function addSurveyRow() {
       <strong>Survey / ઉતારો ${surveyRowCount}</strong>
       <button type="button" class="survey-remove" aria-label="Remove survey" ${surveyRowCount === 1 ? 'disabled' : ''} onclick="removeSurveyRow(this)">Remove</button>
     </div>
-    <input type="text" class="survey-number" placeholder="Survey No. (વૈકલ્પિક)">
+    <input type="text" class="survey-number">
     <div class="two-col survey-measures">
-      <div><label>હે.</label><input type="number" class="survey-hectare" placeholder="હે." min="0" step="any"></div>
-      <div><label>આર</label><input type="number" class="survey-are" placeholder="આર" min="0" step="any"></div>
-      <div><label>ચો.મી.</label><input type="number" class="survey-sqm" placeholder="ચો.મી" min="0" step="any"></div>
+      <div><label>હે.</label><input type="number" class="survey-hectare" min="0" step="any"></div>
+      <div><label>આર</label><input type="number" class="survey-are" min="0" step="any"></div>
+      <div><label>ચો.મી.</label><input type="number" class="survey-sqm" min="0" step="any"></div>
     </div>`;
   document.getElementById('surveyRows').appendChild(row);
-  row.querySelectorAll('input').forEach(input => input.addEventListener('input', runConvert));
+  row.querySelectorAll('input').forEach(input => {
+    const syncHighlight = () => input.classList.toggle('has-value', input.value.trim() !== '');
+    input.addEventListener('input', () => { syncHighlight(); runConvert(); });
+    syncHighlight();
+  });
   refreshSurveyRemoveButtons();
 }
 
@@ -1360,10 +1388,17 @@ function addExcelRow(gunthaValue = '', rateValue = '', totalValue = '') {
   const totalInput = row.querySelector('.excel-total-input');
 
   gunthaInput.addEventListener('input', () => {
+    const g = Number(gunthaInput.value) || 0;
     if (totalInput.dataset.manual === 'yes') {
-      const g = Number(gunthaInput.value) || 0;
+      // Total was entered manually: keep Total fixed and update per-Guntha Rate.
       const t = Number(totalInput.value) || 0;
-      rateInput.value = g > 0 ? (t / g).toFixed(2).replace(/\\.?0+$/, '') : '';
+      rateInput.value = (g > 0 && totalInput.value !== '')
+        ? (t / g).toFixed(2).replace(/\\.?0+$/, '') : '';
+    } else {
+      // Rate is the source: changing Guntha immediately recalculates Total.
+      const r = Number(rateInput.value) || 0;
+      totalInput.value = (g > 0 && rateInput.value !== '')
+        ? (g * r).toFixed(2).replace(/\\.?0+$/, '') : '';
     }
     calculateExcelSheet();
   });
@@ -1371,7 +1406,8 @@ function addExcelRow(gunthaValue = '', rateValue = '', totalValue = '') {
     totalInput.dataset.manual = 'no';
     const g = Number(gunthaInput.value) || 0;
     const r = Number(rateInput.value) || 0;
-    totalInput.value = (g * r) ? (g * r).toFixed(2).replace(/\\.?0+$/, '') : '';
+    totalInput.value = (g > 0 && rateInput.value !== '')
+      ? (g * r).toFixed(2).replace(/\\.?0+$/, '') : '';
     calculateExcelSheet();
   });
   totalInput.addEventListener('input', () => {
