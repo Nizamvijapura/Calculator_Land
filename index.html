@@ -15,7 +15,7 @@
   }
   body {
     margin: 0;
-    font-family: 'Noto Sans Gujarati', 'Segoe UI', sans-serif;
+    font-family: Arial, Helvetica, sans-serif;
     background: linear-gradient(135deg, #0b2f52 0%, #14538a 100%);
     min-height: 100vh;
     padding: 16px;
@@ -26,8 +26,8 @@
   body.theme-history { background: linear-gradient(135deg, #3a1a5c 0%, #6b3fa0 100%); }
   .wrap { max-width: 480px; margin: 0 auto; }
   header { text-align: center; color: #fff; margin-bottom: 6px; }
-  header h1 { font-size: 31px; margin: 0 0 6px; font-family: Arial, sans-serif; font-weight: 800; letter-spacing: 0.3px; }
-  .copyright { text-align:center; font-size: 19px; color: #c9d9e8; margin-bottom: 14px; font-family: Arial, sans-serif; line-height: 1.5; }
+  header h1 { font-size: 31px; margin: 0 0 6px; font-family: Arial, Helvetica, sans-serif; font-weight: 800; letter-spacing: 0.3px; }
+  .copyright { text-align:center; font-size: 19px; color: #c9d9e8; margin-bottom: 14px; font-family: Arial, Helvetica, sans-serif; line-height: 1.5; }
   .copyright .dev-line { font-size: 16px; opacity: 0.9; }
   .support-line { font-size: 16px; margin-top: 4px; }
   .support-line a { color: #eef3f9; font-weight: 700; text-decoration: none; }
@@ -65,7 +65,7 @@
     font-weight: 600;
     cursor: pointer;
     white-space: nowrap;
-    font-family: Arial, sans-serif;
+    font-family: Arial, Helvetica, sans-serif;
     border: none;
     background: transparent;
     -webkit-appearance: none;
@@ -160,7 +160,7 @@
     #printArea {
       display:block;
       padding: 20px;
-      font-family: Arial, sans-serif;
+      font-family: Arial, Helvetica, sans-serif;
     }
     #printArea .ph-head { display:flex; align-items:center; gap:12px; border-bottom: 3px solid #0b2f52; padding-bottom:12px; margin-bottom:18px; }
     #printArea .ph-logo { width:46px; height:46px; background:#0b2f52; color:#fff; border-radius:8px; display:flex; align-items:center; justify-content:center; font-weight:800; font-size:23px; }
@@ -538,21 +538,134 @@
     .unit-settings-title strong { font-size: 16px !important; }
   }
 
+
+  /* Excel-style Guntha x Rate calculator */
+  .excel-toolbar { display:flex; align-items:center; justify-content:space-between; gap:10px; margin:4px 0 12px; }
+  .excel-toolbar span { color:#afc2d5; font-size:14px; line-height:1.5; }
+  .excel-add-btn { width:auto; min-width:112px; margin:0; padding:10px 13px; white-space:nowrap; }
+  .excel-table-wrap { width:100%; overflow-x:auto; border:1px solid #3a5d7b; border-radius:10px; }
+  .excel-table { width:100%; min-width:440px; border-collapse:collapse; table-layout:fixed; }
+  .excel-table th, .excel-table td { border:1px solid #35536d; padding:8px 7px; text-align:center; color:#edf4fc; }
+  .excel-table thead th { background:#173b5d; color:#fff; font-size:14px; }
+  .excel-table tbody td { background:#0b1e30; }
+  .excel-table th:first-child, .excel-table td:first-child { width:42px; }
+  .excel-table th:nth-child(2), .excel-table th:nth-child(3) { width:27%; }
+  .excel-table th:nth-child(4) { width:30%; }
+  .excel-table input {
+    display:block !important; position:relative; z-index:2; pointer-events:auto !important;
+    width:100%; min-width:0; margin:0 !important; padding:9px 5px !important;
+    text-align:right; font-size:16px !important; border-radius:7px !important;
+    opacity:1 !important; visibility:visible !important; cursor:text;
+  }
+  .excel-line-total { color:#70d5d0 !important; font-weight:800; font-size:15px; text-align:right !important; white-space:nowrap; }
+  .excel-remove { border:1px solid #87515b; border-radius:7px; background:#3a2028; color:#ffd7d7; padding:6px 8px; font-size:14px; cursor:pointer; }
+  .excel-grand-total th { background:#174c62 !important; color:#fff !important; font-size:16px; font-weight:900; }
+  #excelTotalAmount { color:#ffd54f !important; font-size:18px !important; }
+  .excel-words { margin-top:12px; padding:11px; border:1px solid #426481; border-radius:9px; color:#ffd54f; text-align:center; font-weight:800; font-size:15px; line-height:1.6; }
+  @media (max-width:430px) {
+    .excel-toolbar { align-items:stretch; flex-direction:column; }
+    .excel-add-btn { width:100%; }
+    .excel-table th, .excel-table td { padding:6px 4px; }
+    .excel-table input { font-size:15px !important; }
+  }
+
+
+/* V10: editable total amount field */
+.excel-total-input {
+  width: 100%; min-width: 88px; box-sizing: border-box;
+  background: #0b1d2c; color: #fff; border: 1px solid #355a73;
+  border-radius: 7px; padding: 9px 7px; text-align: right;
+  font: inherit; font-size: inherit; display: block;
+}
+.excel-total-input:focus { outline: 2px solid #20a7c5; border-color: #20a7c5; }
+
+
+/* V12: colorful Wiztech branding and button palette */
+header h1 {
+  font-size: 29px;
+  line-height: 1.2;
+  color: #ffffff;
+  text-shadow: 0 2px 12px rgba(0,0,0,.28);
+}
+header .dev-line {
+  display: block;
+  margin-top: 5px;
+  color: #ffd166;
+  font-size: 24px;
+  font-weight: 800;
+  letter-spacing: .4px;
+}
+.tabs .tab:nth-child(1) { background: linear-gradient(135deg,#087fbd,#16b8d4); color:#fff; }
+.tabs .tab:nth-child(2) { background: linear-gradient(135deg,#7b42c4,#a45be0); color:#fff; }
+.tabs .tab:nth-child(3) { background: linear-gradient(135deg,#159957,#38c978); color:#fff; }
+.tabs .tab.active { box-shadow: inset 0 0 0 2px rgba(255,255,255,.45), 0 3px 10px rgba(0,0,0,.2); filter: brightness(1.12); }
+.btn { background: linear-gradient(135deg,#087fbd,#1769aa); color:#fff; box-shadow:0 3px 8px rgba(0,0,0,.18); }
+.btn.outline { background:#fff; color:#126ca4; border:2px solid #21a6d5; }
+.clear-btn { background:linear-gradient(135deg,#e84b5b,#bd263d); color:#fff; border:1px solid #ff8290; }
+.excel-add-btn { background:linear-gradient(135deg,#16a085,#00a8a8); color:#fff; }
+.excel-remove { background:linear-gradient(135deg,#e84b5b,#b52b46); color:#fff; border:1px solid #ff8997; }
+button:focus-visible { outline:3px solid #ffd166; outline-offset:2px; }
+button:hover { filter:brightness(1.12); }
+
+
+/* V13: clearer Convert From selector label */
+.convert-from-label {
+  display: inline-flex;
+  align-items: center;
+  padding: 7px 13px;
+  margin: 2px 0 9px;
+  border-radius: 8px;
+  background: linear-gradient(90deg,#ffcf33,#ff9f1c);
+  color: #14283c !important;
+  font-size: 17px !important;
+  font-weight: 900 !important;
+  letter-spacing: .25px;
+  box-shadow: 0 2px 8px rgba(0,0,0,.22);
+  cursor: pointer;
+}
+.convert-from-label::after {
+  content: "  ▼";
+  font-size: 11px;
+  margin-left: 7px;
+}
+#convUnit { cursor: pointer; border: 2px solid #35b9d8; }
+#convUnit:focus { outline: 3px solid rgba(255,207,51,.5); border-color:#ffcf33; }
+
+
+/* V14: clean professional Arial typography */
+body, button, input, select, textarea, label {
+  font-family: Arial, Helvetica, sans-serif !important;
+}
+header h1 {
+  font-family: Arial, Helvetica, sans-serif !important;
+  font-weight: 800;
+  letter-spacing: .15px;
+}
+header .dev-line {
+  font-family: Arial, Helvetica, sans-serif !important;
+  font-weight: 700;
+}
+.support-line, .support-line a {
+  font-family: Arial, Helvetica, sans-serif !important;
+  font-size: 18px !important;
+  font-weight: 700;
+}
+
 </style>
 </head>
 <body>
 <div class="wrap">
   <header>
-    <h1>Smart Calculator</h1>
+    <h1>Wiztech Innovation LLP</h1>
     <div class="copyright">
-      <div>© Wiztech Innovation LLP</div>
-      <div class="dev-line">A Smart Land & Deal Calculator</div>
+      <div class="dev-line">Smart Calculator</div>
       <div class="support-line">Support : <a href="tel:9727908889">9727908889</a></div>
     </div>
   </header>
 
   <div class="tabs">
     <button type="button" class="tab active" data-tab="convert">Converter</button>
+    <button type="button" class="tab" data-tab="excel">Excel</button>
     <button type="button" class="tab" data-tab="settings">Settings</button>
   </div>
 
@@ -571,7 +684,7 @@
         <div><label for="pdfPersonName">Name</label><input type="text" id="pdfPersonName" placeholder="Name"></div>
         <div><label for="pdfSurveyNumber">Survey Number</label><input type="text" id="pdfSurveyNumber" placeholder="Survey No."></div>
       </div>
-      <label>Convert From</label>
+      <label class="convert-from-label" for="convUnit">Convert From</label>
       <select id="convUnit">
         <option value="acre">Acre</option>
         <option value="guntha" selected>Guntha</option>
@@ -634,6 +747,39 @@
       <div id="historyList"><div class="hist-empty">હજુ કોઈ ગણતરી સેવ નથી થઈ</div></div>
     </div>
   </div>
+
+  <!-- EXCEL TAB -->
+  <div id="tab-excel" style="display:none">
+    <div class="card">
+      <div class="card-head">
+        <h2>Excel – Guntha Rate Calculator</h2>
+        <button type="button" class="clear-btn" id="excelClearBtn" onclick="return window.clearExcelSheet()">Clear</button>
+      </div>
+      <div class="excel-toolbar">
+        <span>દરેક લાઇનમાં ગુંઠા અને ભાવ લખો. Total આપમેળે ગણાશે.</span>
+        <button type="button" class="btn excel-add-btn" id="excelAddRowBtn" onclick="return window.addExcelRow()">＋ Add Row</button>
+      </div>
+      <div class="excel-table-wrap">
+        <table class="excel-table">
+          <thead>
+            <tr><th>No.</th><th>Guntha</th><th>Rate (₹)</th><th>Total (₹)</th><th></th></tr>
+          </thead>
+          <tbody id="excelRows"></tbody>
+          <tfoot>
+            <tr class="excel-grand-total">
+              <th>Total</th>
+              <th id="excelTotalGuntha">0</th>
+              <th>—</th>
+              <th id="excelTotalAmount">₹ 0</th>
+              <th></th>
+            </tr>
+          </tfoot>
+        </table>
+      </div>
+      <div class="excel-words" id="excelAmountWords">શૂન્ય રૂપિયા</div>
+      
+    </div>
+  </div>
 </div>
 
 <!-- PDF / PRINT AREA -->
@@ -659,6 +805,7 @@
 </div>
 
 <script>
+let excelRowCounter = 0;
 const GUNTHA_TO_SQFT = 1089;
 const UNIT_SETTINGS_KEY = 'smartCalculatorUnitSettings';
 let UNIT_SETTINGS = { acreGuntha: 40, vighaGuntha: 16 };
@@ -734,7 +881,7 @@ document.querySelectorAll('.tab').forEach(t => {
   t.addEventListener('click', () => {
     document.querySelectorAll('.tab').forEach(x => x.classList.remove('active'));
     t.classList.add('active');
-    ['convert','settings'].forEach(name => {
+    ['convert','settings','excel'].forEach(name => {
       document.getElementById('tab-' + name).style.display = (name === t.dataset.tab) ? 'block' : 'none';
     });
     document.body.classList.remove('theme-deal','theme-history');
@@ -872,10 +1019,9 @@ function runConvert() {
 convUnit.addEventListener('change', updateConvUI);
 convIn.addEventListener('input', runConvert);
 convRate.addEventListener('input', runConvert);
-['convHectare','convAre','convSqm'].forEach(id => {
-  document.getElementById(id).addEventListener('input', runConvert);
-});
+// 7/12 survey inputs attach their own input listeners when each row is created.
 initializeUnitSettings();
+clearExcelSheet();
 updateConvUI();
 
 function clearConvert() {
@@ -1110,6 +1256,111 @@ function printBanakhat() {
   document.getElementById('printVerdict').style.display = 'none';
   window.print();
 }
+
+
+// ---- EXCEL-STYLE GUNTHA / RATE CALCULATOR ----
+
+function addExcelRow(gunthaValue = '', rateValue = '', totalValue = '') {
+  excelRowCounter += 1;
+  const row = document.createElement('tr');
+  row.className = 'excel-data-row';
+  row.innerHTML = `
+    <td class="excel-row-number">${excelRowCounter}</td>
+    <td><input type="number" class="excel-guntha" min="0" step="any" placeholder="0" value="${gunthaValue}"></td>
+    <td><input type="number" class="excel-rate" min="0" step="any" placeholder="Rate" value="${rateValue}"></td>
+    <td><input type="number" class="excel-total-input" min="0" step="any" placeholder="Total" value="${totalValue}"></td>
+    <td><button type="button" class="excel-remove" title="Remove row" aria-label="Remove row">×</button></td>`;
+  document.getElementById('excelRows').appendChild(row);
+
+  const gunthaInput = row.querySelector('.excel-guntha');
+  const rateInput = row.querySelector('.excel-rate');
+  const totalInput = row.querySelector('.excel-total-input');
+
+  gunthaInput.addEventListener('input', () => {
+    if (totalInput.dataset.manual === 'yes') {
+      const g = Number(gunthaInput.value) || 0;
+      const t = Number(totalInput.value) || 0;
+      rateInput.value = g > 0 ? (t / g).toFixed(2).replace(/\\.?0+$/, '') : '';
+    }
+    calculateExcelSheet();
+  });
+  rateInput.addEventListener('input', () => {
+    totalInput.dataset.manual = 'no';
+    const g = Number(gunthaInput.value) || 0;
+    const r = Number(rateInput.value) || 0;
+    totalInput.value = (g * r) ? (g * r).toFixed(2).replace(/\\.?0+$/, '') : '';
+    calculateExcelSheet();
+  });
+  totalInput.addEventListener('input', () => {
+    totalInput.dataset.manual = 'yes';
+    const g = Number(gunthaInput.value) || 0;
+    const t = Number(totalInput.value) || 0;
+    rateInput.value = g > 0 && totalInput.value !== '' ? (t / g).toFixed(2).replace(/\\.?0+$/, '') : '';
+    calculateExcelSheet();
+  });
+  row.querySelector('.excel-remove').addEventListener('click', () => {
+    row.remove();
+    renumberExcelRows();
+    calculateExcelSheet();
+  });
+  calculateExcelSheet();
+}
+
+function renumberExcelRows() {
+  document.querySelectorAll('#excelRows .excel-data-row').forEach((row, index) => {
+    row.querySelector('.excel-row-number').textContent = index + 1;
+  });
+  excelRowCounter = document.querySelectorAll('#excelRows .excel-data-row').length;
+}
+
+function calculateExcelSheet() {
+  let totalGuntha = 0;
+  let grandTotal = 0;
+  document.querySelectorAll('#excelRows .excel-data-row').forEach(row => {
+    const guntha = Math.max(0, parseFloat(row.querySelector('.excel-guntha').value) || 0);
+    const amount = Math.max(0, parseFloat(row.querySelector('.excel-total-input').value) || 0);
+    totalGuntha += guntha;
+    grandTotal += amount;
+  });
+  document.getElementById('excelTotalGuntha').textContent = fmt(totalGuntha);
+  document.getElementById('excelTotalAmount').textContent = '₹ ' + grandTotal.toLocaleString('en-IN', {maximumFractionDigits:2});
+  document.getElementById('excelAmountWords').textContent = numberToGujaratiWords(grandTotal);
+}
+
+function clearExcelSheet() {
+  const body = document.getElementById('excelRows');
+  body.innerHTML = '';
+  excelRowCounter = 0;
+  addExcelRow();
+  calculateExcelSheet();
+}
+
+// Robust button wiring: inline handlers plus delegated click fallback.
+window.addExcelRow = function () {
+  addExcelRow();
+  return false;
+};
+window.clearExcelSheet = function () {
+  const body = document.getElementById('excelRows');
+  if (!body) return false;
+  body.innerHTML = '';
+  excelRowCounter = 0;
+  addExcelRow();
+  calculateExcelSheet();
+  return false;
+};
+
+document.addEventListener('click', function (event) {
+  const addBtn = event.target.closest('#excelAddRowBtn');
+  const clearBtn = event.target.closest('#excelClearBtn');
+  if (addBtn) {
+    event.preventDefault();
+    window.addExcelRow();
+  } else if (clearBtn) {
+    event.preventDefault();
+    window.clearExcelSheet();
+  }
+}, true);
 
 // ---- HISTORY ----
 function renderHistory() {
