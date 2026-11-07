@@ -678,9 +678,55 @@ header .software-credit {
   box-shadow: 0 0 0 3px rgba(255,207,51,.25), 0 3px 10px rgba(0,0,0,.25);
 }
 
+
+/* Temporary HTML password gate */
+#passwordGate {
+  position: fixed; inset: 0; z-index: 99999;
+  display: flex; align-items: center; justify-content: center;
+  padding: 20px; box-sizing: border-box;
+  background: radial-gradient(circle at top, #17476d 0%, #071727 72%);
+  font-family: Arial, Helvetica, sans-serif;
+}
+#passwordGate .login-card {
+  width: 100%; max-width: 390px; box-sizing: border-box;
+  padding: 28px 24px; border-radius: 18px;
+  background: linear-gradient(145deg,#12324b,#0b2033);
+  border: 1px solid #37617d; box-shadow: 0 18px 50px rgba(0,0,0,.4);
+  text-align: center; color: #fff;
+}
+#passwordGate h2 { margin: 0 0 8px; font-size: 25px; }
+#passwordGate .gate-subtitle { color:#c6d8e8; font-size:14px; margin-bottom:22px; }
+#passwordGate input {
+  width:100%; box-sizing:border-box; padding:13px 14px; margin:0 0 13px;
+  border:2px solid #3d6a89; border-radius:9px; background:#081b2b;
+  color:#fff; font-size:17px; outline:none;
+}
+#passwordGate input:focus { border-color:#ffca36; box-shadow:0 0 0 3px rgba(255,202,54,.18); }
+#passwordGate button {
+  width:100%; padding:13px; border:0; border-radius:9px;
+  background:linear-gradient(90deg,#ffca36,#ff9f1c); color:#14283c;
+  font-size:17px; font-weight:800; cursor:pointer;
+}
+#passwordGate .gate-error { min-height:20px; margin-top:10px; color:#ff929b; font-size:13px; }
+#appContent { display:none; }
+
 </style>
 </head>
 <body>
+
+<div id="passwordGate">
+  <div class="login-card">
+    <h2>Wiztech Innovation LLP</h2>
+    <div class="gate-subtitle">Smart Land Calculator · Password Required</div>
+    <form id="passwordForm">
+      <input id="gatePassword" type="password" placeholder="Enter Password" autocomplete="current-password" required>
+      <button type="submit">Unlock Calculator</button>
+    </form>
+    <div class="gate-error" id="gateError" aria-live="polite"></div>
+  </div>
+</div>
+
+<div id="appContent">
 <div class="wrap">
   <header>
     <h1>Wiztech Innovation LLP</h1>
@@ -804,6 +850,8 @@ header .software-credit {
       
     </div>
   </div>
+</div>
+
 </div>
 
 <!-- PDF / PRINT AREA -->
@@ -1413,5 +1461,40 @@ function renderHistory() {
   `).join('');
 }
 </script>
+
+<script>
+(function () {
+  // Temporary client-side protection only; the password is visible in page source.
+  const TEMP_PASSWORD = 'wiztech@753';
+  const gate = document.getElementById('passwordGate');
+  const app = document.getElementById('appContent');
+  const form = document.getElementById('passwordForm');
+  const input = document.getElementById('gatePassword');
+  const error = document.getElementById('gateError');
+
+  function unlock() {
+    gate.style.display = 'none';
+    app.style.display = 'block';
+  }
+
+  try {
+    if (sessionStorage.getItem('smartLandCalcUnlocked') === 'yes') unlock();
+  } catch (e) {}
+
+  form.addEventListener('submit', function (event) {
+    event.preventDefault();
+    if (input.value === TEMP_PASSWORD) {
+      try { sessionStorage.setItem('smartLandCalcUnlocked', 'yes'); } catch (e) {}
+      error.textContent = '';
+      unlock();
+    } else {
+      error.textContent = 'Incorrect password. Please try again.';
+      input.value = '';
+      input.focus();
+    }
+  });
+})();
+</script>
+
 </body>
 </html>
