@@ -709,8 +709,8 @@ header .software-credit {
         </svg>
       </button><button class="clear-btn" onclick="clearConvert()">Clear</button></div></div>
       <div class="two-col pdf-meta-fields">
-        <div><label for="pdfPersonName">Name</label><input type="text" id="pdfPersonName" placeholder="Name"></div>
-        <div><label for="pdfSurveyNumber">Survey Number</label><input type="text" id="pdfSurveyNumber" placeholder="Survey No."></div>
+        <div><label for="pdfPersonName">Name</label><input type="text" id="pdfPersonName"></div>
+        <div><label for="pdfSurveyNumber">Survey Number</label><input type="text" id="pdfSurveyNumber"></div>
       </div>
       <label class="convert-from-label" for="convUnit" id="convertFromLabel">Convert From</label>
       <select id="convUnit">
@@ -721,7 +721,7 @@ header .software-credit {
         <option value="haa">7/12 ઉતારો (હે. - આર. - ચો.મી.)</option>
       </select>
       <label id="convInLabel">Enter Guntha</label>
-      <input type="number" id="convIn" placeholder="e.g. 15" step="any">
+      <input type="number" id="convIn" step="any">
       
       <div id="convHaaGroup" style="display:none">
         <div class="survey-head">
@@ -733,7 +733,7 @@ header .software-credit {
         <div class="survey-total-hint">બધા ઉતારાનું ક્ષેત્રફળ આપમેળે જોડાશે.</div>
       </div>
       <label id="convRateLabel">Rate per Guntha (₹)</label>
-      <input type="number" id="convRate" placeholder="e.g. 4000000" step="any">
+      <input type="number" id="convRate" step="any">
       <div class="results" id="convResult" style="display:none">
         <div class="row"><span>Acre</span><span class="val" id="conv_acre">-</span></div>
         <div class="row"><span>Vigha (વિઘા)</span><span class="val" id="conv_vigha">-</span></div>
@@ -750,10 +750,10 @@ header .software-credit {
   <!-- SETTINGS TAB: unit settings + saved history -->
   <div id="tab-settings" style="display:none">
     <div class="card">
-      <div class="card-head"><h2>માપના સેટિંગ્સ</h2></div>
+      <div class="card-head"><h2>ગુંઠા અને વિઘાના માપનું સેટિંગ્સ</h2></div>
       <div class="unit-settings">
         <div class="unit-settings-title">
-          <strong>માપના સેટિંગ્સ</strong>
+          <strong>ગુંઠા અને વિઘાના માપનું સેટિંગ્સ</strong>
           <span>એકવાર સેટ કરો — આપમેળે સેવ થશે</span>
         </div>
         <div class="two-col settings-fields">
@@ -767,12 +767,8 @@ header .software-credit {
           </div>
         </div>
         <button type="button" class="btn save-settings-btn" onclick="saveUnitSettings()">💾 Save Settings</button>
-        <div id="unitSettingsStatus" class="settings-status">Default: 1 એકર = 40 ગુંઠા • 1 વિઘા = 16 ગુંઠા</div>
+        <div id="unitSettingsStatus" class="settings-status"></div>
       </div>
-    </div>
-    <div class="card">
-      <h2>Saved History / સેવ કરેલી ગણતરીઓ</h2>
-      <div id="historyList"><div class="hist-empty">હજુ કોઈ ગણતરી સેવ નથી થઈ</div></div>
     </div>
   </div>
 
@@ -927,7 +923,7 @@ const convIn = document.getElementById('convIn');
 const convRate = document.getElementById('convRate');
 const convInLabel = document.getElementById('convInLabel');
 const unitLabels = { acre: 'Acre', guntha: 'Guntha', sqft: 'Sq Ft', vigha: 'Vigha' };
-const unitPlaceholders = { acre: 'e.g. 2.5', guntha: 'e.g. 15', sqft: 'e.g. 16335', vigha: 'e.g. 3' };
+const unitPlaceholders = { acre: '', guntha: '', sqft: '', vigha: '' };
 
 let surveyRowCount = 0;
 
@@ -979,7 +975,7 @@ function updateConvUI() {
   document.getElementById('convHaaGroup').style.display = isHaa ? 'block' : 'none';
   if (!isHaa) {
     convInLabel.textContent = 'Enter ' + unitLabels[u];
-    convIn.placeholder = unitPlaceholders[u];
+    convIn.placeholder = '';
   }
   document.getElementById('convRateLabel').textContent = isHaa ? 'Rate per Acre (₹)' : 'Rate per ' + unitLabels[u] + ' (₹)';
   runConvert();
@@ -1305,9 +1301,9 @@ function addExcelRow(gunthaValue = '', rateValue = '', totalValue = '') {
   row.className = 'excel-data-row';
   row.innerHTML = `
     <td class="excel-row-number">${excelRowCounter}</td>
-    <td><input type="number" class="excel-guntha" min="0" step="any" placeholder="0" value="${gunthaValue}"></td>
-    <td><input type="number" class="excel-rate" min="0" step="any" placeholder="Rate" value="${rateValue}"></td>
-    <td><input type="number" class="excel-total-input" min="0" step="any" placeholder="Total" value="${totalValue}"></td>
+    <td><input type="number" class="excel-guntha" min="0" step="any" placeholder="" value="${gunthaValue}"></td>
+    <td><input type="number" class="excel-rate" min="0" step="any" placeholder="" value="${rateValue}"></td>
+    <td><input type="number" class="excel-total-input" min="0" step="any" placeholder="" value="${totalValue}"></td>
     <td><button type="button" class="excel-remove" title="Remove row" aria-label="Remove row">×</button></td>`;
   document.getElementById('excelRows').appendChild(row);
 
